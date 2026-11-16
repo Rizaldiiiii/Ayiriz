@@ -89,6 +89,9 @@
         <div class="marquee-track font-heading text-sm font-bold tracking-wider">
             <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR • SATU PESANAN SATU KANTIN • HARGA ANAK KULIAHAN •&nbsp;</span>
             <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR • SATU PESANAN SATU KANTIN • HARGA ANAK KULIAHAN •&nbsp;</span>
+            <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR • SATU PESANAN SATU KANTIN • HARGA ANAK KULIAHAN •&nbsp;</span>
+            <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR • SATU PESANAN SATU KANTIN • HARGA ANAK KULIAHAN •&nbsp;</span>
+            <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR • SATU PESANAN SATU KANTIN • HARGA ANAK KULIAHAN •&nbsp;</span>
         </div>
     </div>
 

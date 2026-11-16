@@ -201,7 +201,7 @@ Dua pola dari referensi yang **hanya boleh ada di halaman publik**
 - **Strip marquee (Hard Lines):** satu strip tipis (36–44px) merah
   `#B71F30` dengan teks krem berulang, misal
   `AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •`
-  yang bergerak pelan dari kanan ke kiri. Hanya satu strip per
+  yang bergerak pelan dari kiri ke kanan. Hanya satu strip per
   halaman publik, hanya di bawah hero atau di atas footer. Gerakannya
   diatur di `Motion-Ayiriz.md` Bagian 13 — pelan, berhenti saat
   hover, dan mati total saat `prefers-reduced-motion`.

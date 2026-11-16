@@ -483,10 +483,10 @@ html.has-reveal [data-reveal].is-visible {
 
 @keyframes marqueeScroll {
     from {
-        transform: translateX(0);
+        transform: translateX(-20%);
     }
     to {
-        transform: translateX(-50%);
+        transform: translateX(0);
     }
 }
 

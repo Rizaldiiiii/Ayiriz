@@ -1130,6 +1130,9 @@ hanya satu strip per halaman, di bawah hero atau di atas footer.
     <div class="marquee-track">
         <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •&nbsp;</span>
         <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •&nbsp;</span>
+        <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •&nbsp;</span>
+        <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •&nbsp;</span>
+        <span>AYIRIZ • DEPAN GERBANG UNG • PESAN ONLINE • BAYAR DI KASIR •&nbsp;</span>
     </div>
 </div>
 ```
@@ -1151,8 +1154,8 @@ hanya satu strip per halaman, di bawah hero atau di atas footer.
 }
 
 @keyframes marqueeScroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
 }
 
 .marquee:hover .marquee-track {
@@ -1164,7 +1167,7 @@ Aturan:
 
 - Kecepatan: 30 detik per putaran (pelan). Jangan lebih cepat dari
   20 detik.
-- Teks diulang dua kali supaya putarannya mulus (translateX −50%).
+- Teks diulang lima kali supaya putarannya mulus di layar lebar (translateX −20% = satu span).
 - Berhenti saat hover, dan **mati total** saat
   `prefers-reduced-motion` (Bagian 15.1) — stripnya tetap tampil
   sebagai strip statis, teksnya tetap terbaca.
