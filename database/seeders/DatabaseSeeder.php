@@ -1,0 +1,339 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Enums\OrderStatus;
+use App\Enums\OutletStatus;
+use App\Enums\UserRole;
+use App\Models\Category;
+use App\Models\Menu;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Outlet;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database (Data Contoh Fiktif — PRD §6 & ERD §4).
+     */
+    public function run(): void
+    {
+        // 1. Akun Pusat Ayiriz
+        User::updateOrCreate(
+            ['email' => 'pusat@ayiriz.local'],
+            [
+                'name' => 'Pusat Ayiriz (Owner Brand)',
+                'password' => Hash::make('Pusat123!'),
+                'role' => UserRole::Pusat,
+            ]
+        );
+
+        // 2. Akun Pelanggan Contoh (Mahasiswa UNG)
+        $pelanggan1 = User::updateOrCreate(
+            ['email' => 'pelanggan1@ayiriz.local'],
+            [
+                'name' => 'Aldi Mahasiswa (Data Contoh)',
+                'password' => Hash::make('Pelanggan123!'),
+                'role' => UserRole::Pelanggan,
+            ]
+        );
+
+        $pelanggan2 = User::updateOrCreate(
+            ['email' => 'pelanggan2@ayiriz.local'],
+            [
+                'name' => 'Siti Nabila (Data Contoh)',
+                'password' => Hash::make('Pelanggan123!'),
+                'role' => UserRole::Pelanggan,
+            ]
+        );
+
+        // 3. Kategori Menu Global (ERD §2.3)
+        $catMakananBerat = Category::updateOrCreate(['nama' => 'Makanan Berat']);
+        $catMinuman = Category::updateOrCreate(['nama' => 'Minuman']);
+        $catCemilan = Category::updateOrCreate(['nama' => 'Cemilan & Dessert']);
+        $catPaket = Category::updateOrCreate(['nama' => 'Paket Anak Kuliahan']);
+
+        // 4. Akun & Data 4 Outlet Contoh di Depan Gerbang Kampus UNG (3 Terverifikasi + 1 Belum Terverifikasi)
+        $outletsData = [
+            [
+                'email' => 'outlet1@ayiriz.local',
+                'user_name' => 'Bang Hendra (Ayiriz Geprek)',
+                'nama' => 'Ayiriz Geprek',
+                'slug' => 'ayiriz-geprek',
+                'pemilik' => 'Hendra Saputra',
+                'no_hp' => '0812-4310-1001',
+                'alamat' => 'Kantin Blok A1 Depan Gerbang Utama UNG, Jl. Jend. Sudirman',
+                'jam_buka' => 'Senin–Sabtu, 08:00–20:00 WITA',
+                'status' => OutletStatus::Terverifikasi,
+                'menus' => [
+                    ['nama' => 'Ayam Geprek Sambal Korek + Nasi', 'category_id' => $catMakananBerat->id, 'harga' => 15000, 'stok_porsi' => 35, 'tersedia' => true, 'deskripsi' => 'Ayam krispi geprek hangat dengan sambal korek bawang segar dan nasi putih pulen.'],
+                    ['nama' => 'Ayam Geprek Sambal Roa Khas Gorontalo', 'category_id' => $catMakananBerat->id, 'harga' => 18000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Perpaduan ayam geprek renyah dengan sambal ikan roa asap khas Gorontalo.'],
+                    ['nama' => 'Paket Hemat Geprek + Es Teh Manis', 'category_id' => $catPaket->id, 'harga' => 17000, 'stok_porsi' => 30, 'tersedia' => true, 'deskripsi' => 'Paket kenyang anak kuliahan: nasi ayam geprek level 1–5 lengkap dengan es teh manis jumbo.'],
+                    ['nama' => 'Mie Goreng Geprek Telur Ceplok', 'category_id' => $catMakananBerat->id, 'harga' => 16000, 'stok_porsi' => 20, 'tersedia' => true, 'deskripsi' => 'Mie goreng rempah gurih dengan potongan ayam geprek dan telur mata sapi.'],
+                    ['nama' => 'Tahu Tempe Crispy Sambal Bawang', 'category_id' => $catCemilan->id, 'harga' => 8000, 'stok_porsi' => 40, 'tersedia' => true, 'deskripsi' => 'Cemilan tahu dan tempe tepung renyah dengan cocolan sambal bawang.'],
+                    ['nama' => 'Es Jeruk Peras Segar', 'category_id' => $catMinuman->id, 'harga' => 6000, 'stok_porsi' => 50, 'tersedia' => true, 'deskripsi' => 'Perasan jeruk manis segar dengan es batu, cocok penawar pedas.'],
+                ],
+            ],
+            [
+                'email' => 'outlet2@ayiriz.local',
+                'user_name' => 'Kak Nanda (Ayiriz Kopi & Roti)',
+                'nama' => 'Ayiriz Kopi & Roti',
+                'slug' => 'ayiriz-kopi-roti',
+                'pemilik' => 'Nanda Pratama',
+                'no_hp' => '0812-4310-1002',
+                'alamat' => 'Kantin Blok B2 Seberang Gerbang Kampus UNG',
+                'jam_buka' => 'Senin–Sabtu, 07:30–21:00 WITA',
+                'status' => OutletStatus::Terverifikasi,
+                'menus' => [
+                    ['nama' => 'Es Kopi Susu Gula Aren Kampus', 'category_id' => $catMinuman->id, 'harga' => 12000, 'stok_porsi' => 40, 'tersedia' => true, 'deskripsi' => 'Espresso house blend dengan susu segar dan gula aren asli teman nugas kuliah.'],
+                    ['nama' => 'Roti Bakar Cokelat Keju Lumer', 'category_id' => $catCemilan->id, 'harga' => 13000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Roti tawar tebal panggang mentega dengan isian cokelat dan parutan keju melimpah.'],
+                    ['nama' => 'Roti Bakar Srikaya Pandan', 'category_id' => $catCemilan->id, 'harga' => 10000, 'stok_porsi' => 20, 'tersedia' => true, 'deskripsi' => 'Roti bakar lembut dengan selai srikaya pandan buatan sendiri.'],
+                    ['nama' => 'Paket Ngampus (Es Kopi Aren + Roti Bakar)', 'category_id' => $catPaket->id, 'harga' => 20000, 'stok_porsi' => 18, 'tersedia' => true, 'deskripsi' => 'Kombinasi hemat es kopi susu gula aren dan roti bakar pilihan.'],
+                    ['nama' => 'Matcha Latte Dingin', 'category_id' => $catMinuman->id, 'harga' => 14000, 'stok_porsi' => 22, 'tersedia' => true, 'deskripsi' => 'Minuman teh hijau Jepang creamy dengan susu segar dingin.'],
+                    ['nama' => 'Kentang Goreng Bumbu Balado', 'category_id' => $catCemilan->id, 'harga' => 11000, 'stok_porsi' => 15, 'tersedia' => true, 'deskripsi' => 'Kentang goreng renyah tabur bumbu balado manis pedas.'],
+                ],
+            ],
+            [
+                'email' => 'outlet3@ayiriz.local',
+                'user_name' => 'Ibu Dewi (Ayiriz Es & Dessert)',
+                'nama' => 'Ayiriz Es & Dessert',
+                'slug' => 'ayiriz-es-dessert',
+                'pemilik' => 'Dewi Maharani',
+                'no_hp' => '0812-4310-1003',
+                'alamat' => 'Kantin Blok C1 Samping Gerbang Fakultas Teknik UNG',
+                'jam_buka' => 'Senin–Sabtu, 09:00–18:00 WITA',
+                'status' => OutletStatus::Terverifikasi,
+                'menus' => [
+                    ['nama' => 'Es Pisang Ijo Sirup Merah', 'category_id' => $catCemilan->id, 'harga' => 12000, 'stok_porsi' => 30, 'tersedia' => true, 'deskripsi' => 'Pisang raja balut adonan pandan hijau dengan bubur sumsum gurih dan sirup merah dingin.'],
+                    ['nama' => 'Es Brenebon Kacang Merah Susu', 'category_id' => $catMinuman->id, 'harga' => 13000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Es kacang merah empuk khas Sulawesi dengan susu kental manis cokelat dan es serut.'],
+                    ['nama' => 'Salad Buah Keju Parut Cup Besar', 'category_id' => $catCemilan->id, 'harga' => 15000, 'stok_porsi' => 20, 'tersedia' => true, 'deskripsi' => 'Potongan buah segar saus yogurt manis dengan taburan keju parut penuh.'],
+                    ['nama' => 'Puding Mangga Vla Susu', 'category_id' => $catCemilan->id, 'harga' => 8000, 'stok_porsi' => 28, 'tersedia' => true, 'deskripsi' => 'Puding mangga dingin lembut disiram vla susu vanila.'],
+                    ['nama' => 'Es Cincau Hijau Gula Merah', 'category_id' => $catMinuman->id, 'harga' => 7000, 'stok_porsi' => 35, 'tersedia' => true, 'deskripsi' => 'Minuman cincau hijau segar dengan santan ringan dan gula aren cair.'],
+                    ['nama' => 'Es Teh Lemon Madu', 'category_id' => $catMinuman->id, 'harga' => 5000, 'stok_porsi' => 45, 'tersedia' => true, 'deskripsi' => 'Es teh segar perasan lemon asli dengan sentuhan madu.'],
+                ],
+            ],
+            [
+                'email' => 'outlet4@ayiriz.local',
+                'user_name' => 'Pak Rudi (Ayiriz Mie & Dimsum)',
+                'nama' => 'Ayiriz Mie & Dimsum',
+                'slug' => 'ayiriz-mie-dimsum',
+                'pemilik' => 'Rudi Hartono',
+                'no_hp' => '0812-4310-1004',
+                'alamat' => 'Kantin Blok D3 Depan Gerbang Barat UNG',
+                'jam_buka' => 'Senin–Sabtu, 09:00–19:00 WITA',
+                'status' => OutletStatus::BelumTerverifikasi,
+                'menus' => [
+                    ['nama' => 'Mie Pedas Kampus Level 1', 'category_id' => $catMakananBerat->id, 'harga' => 12000, 'stok_porsi' => 30, 'tersedia' => true, 'deskripsi' => 'Mie kenyal pedas gurih dengan taburan ayam cincang dan pangsit goreng.'],
+                    ['nama' => 'Dimsum Ayam Udang (Isi 4)', 'category_id' => $catCemilan->id, 'harga' => 14000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Dimsum kukus hangat daging ayam dan udang dengan saus cabai.'],
+                    ['nama' => 'Pangsit Kuah Kaldu Ayam', 'category_id' => $catMakananBerat->id, 'harga' => 13000, 'stok_porsi' => 20, 'tersedia' => true, 'deskripsi' => 'Pangsit lembut kuah kaldu ayam hangat dan daun bawang.'],
+                    ['nama' => 'Lumpia Kulit Tahu Goreng', 'category_id' => $catCemilan->id, 'harga' => 10000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Lumpia isi ayam gulung kulit tahu goreng renyah.'],
+                    ['nama' => 'Es Liang Teh Kampus', 'category_id' => $catMinuman->id, 'harga' => 6000, 'stok_porsi' => 40, 'tersedia' => true, 'deskripsi' => 'Minuman liang teh manis dingin penyegar dahaga.'],
+                ],
+            ],
+        ];
+
+        $createdOutlets = [];
+        $createdMenusByOutlet = [];
+
+        foreach ($outletsData as $outletDef) {
+            $outletUser = User::updateOrCreate(
+                ['email' => $outletDef['email']],
+                [
+                    'name' => $outletDef['user_name'],
+                    'password' => Hash::make('Outlet123!'),
+                    'role' => UserRole::Outlet,
+                ]
+            );
+
+            $outlet = Outlet::updateOrCreate(
+                ['slug' => $outletDef['slug']],
+                [
+                    'user_id' => $outletUser->id,
+                    'nama' => $outletDef['nama'],
+                    'pemilik' => $outletDef['pemilik'],
+                    'no_hp' => $outletDef['no_hp'],
+                    'alamat' => $outletDef['alamat'],
+                    'jam_buka' => $outletDef['jam_buka'],
+                    'status' => $outletDef['status'],
+                    'royalty_percent' => 10.00,
+                    'is_sample' => true,
+                ]
+            );
+
+            $createdOutlets[$outlet->slug] = $outlet;
+            $createdMenusByOutlet[$outlet->slug] = [];
+
+            foreach ($outletDef['menus'] as $menuDef) {
+                $menu = Menu::updateOrCreate(
+                    [
+                        'outlet_id' => $outlet->id,
+                        'nama' => $menuDef['nama'],
+                    ],
+                    [
+                        'category_id' => $menuDef['category_id'],
+                        'deskripsi' => $menuDef['deskripsi'],
+                        'harga' => $menuDef['harga'],
+                        'stok_porsi' => $menuDef['stok_porsi'],
+                        'tersedia' => $menuDef['tersedia'],
+                        'foto' => null,
+                        'is_sample' => true,
+                    ]
+                );
+
+                $createdMenusByOutlet[$outlet->slug][] = $menu;
+            }
+        }
+
+        // 5. Pesanan Contoh (8 pesanan: sebagian Diproses, sebagian Selesai dengan royalti 10% terhitung)
+        $sampleOrders = [
+            [
+                'kode' => 'AYZ-20261116-0001',
+                'user' => $pelanggan1,
+                'outlet_slug' => 'ayiriz-geprek',
+                'status' => OrderStatus::Selesai,
+                'items' => [
+                    ['menu_index' => 0, 'jumlah' => 2], // 2x 15.000 = 30.000
+                    ['menu_index' => 5, 'jumlah' => 2], // 2x 6.000 = 12.000
+                ],
+                'created_at' => now()->subHours(5),
+                'selesai_at' => now()->subHours(4),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0002',
+                'user' => $pelanggan2,
+                'outlet_slug' => 'ayiriz-geprek',
+                'status' => OrderStatus::Selesai,
+                'items' => [
+                    ['menu_index' => 1, 'jumlah' => 1], // 18.000
+                    ['menu_index' => 4, 'jumlah' => 1], // 8.000
+                ],
+                'created_at' => now()->subHours(3),
+                'selesai_at' => now()->subHours(2),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0003',
+                'user' => $pelanggan1,
+                'outlet_slug' => 'ayiriz-geprek',
+                'status' => OrderStatus::Diproses,
+                'items' => [
+                    ['menu_index' => 2, 'jumlah' => 1], // 17.000
+                ],
+                'created_at' => now()->subMinutes(40),
+                'selesai_at' => null,
+            ],
+            [
+                'kode' => 'AYZ-20261116-0004',
+                'user' => $pelanggan2,
+                'outlet_slug' => 'ayiriz-kopi-roti',
+                'status' => OrderStatus::Selesai,
+                'items' => [
+                    ['menu_index' => 0, 'jumlah' => 2], // 2x 12.000 = 24.000
+                    ['menu_index' => 1, 'jumlah' => 1], // 13.000
+                ],
+                'created_at' => now()->subHours(4),
+                'selesai_at' => now()->subHours(3),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0005',
+                'user' => $pelanggan1,
+                'outlet_slug' => 'ayiriz-kopi-roti',
+                'status' => OrderStatus::Diproses,
+                'items' => [
+                    ['menu_index' => 3, 'jumlah' => 1], // 20.000
+                ],
+                'created_at' => now()->subMinutes(25),
+                'selesai_at' => null,
+            ],
+            [
+                'kode' => 'AYZ-20261116-0006',
+                'user' => $pelanggan1,
+                'outlet_slug' => 'ayiriz-es-dessert',
+                'status' => OrderStatus::Selesai,
+                'items' => [
+                    ['menu_index' => 0, 'jumlah' => 2], // 2x 12.000 = 24.000
+                    ['menu_index' => 5, 'jumlah' => 2], // 2x 5.000 = 10.000
+                ],
+                'created_at' => now()->subHours(6),
+                'selesai_at' => now()->subHours(5),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0007',
+                'user' => $pelanggan2,
+                'outlet_slug' => 'ayiriz-es-dessert',
+                'status' => OrderStatus::Selesai,
+                'items' => [
+                    ['menu_index' => 1, 'jumlah' => 1], // 13.000
+                    ['menu_index' => 2, 'jumlah' => 1], // 15.000
+                ],
+                'created_at' => now()->subHours(2),
+                'selesai_at' => now()->subHour(),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0008',
+                'user' => $pelanggan2,
+                'outlet_slug' => 'ayiriz-es-dessert',
+                'status' => OrderStatus::Diproses,
+                'items' => [
+                    ['menu_index' => 3, 'jumlah' => 2], // 2x 8.000 = 16.000
+                ],
+                'created_at' => now()->subMinutes(15),
+                'selesai_at' => null,
+            ],
+        ];
+
+        foreach ($sampleOrders as $orderDef) {
+            $outlet = $createdOutlets[$orderDef['outlet_slug']];
+            $menus = $createdMenusByOutlet[$orderDef['outlet_slug']];
+
+            $total = 0;
+            $itemsPayload = [];
+
+            foreach ($orderDef['items'] as $itemRow) {
+                /** @var Menu $menu */
+                $menu = $menus[$itemRow['menu_index']];
+                $qty = $itemRow['jumlah'];
+                $subtotal = $menu->harga * $qty;
+                $total += $subtotal;
+
+                $itemsPayload[] = [
+                    'menu_id' => $menu->id,
+                    'nama_menu_saat_checkout' => $menu->nama,
+                    'harga_saat_checkout' => $menu->harga,
+                    'jumlah' => $qty,
+                    'subtotal' => $subtotal,
+                ];
+            }
+
+            $isSelesai = $orderDef['status'] === OrderStatus::Selesai;
+            $royaltyPercent = $isSelesai ? 10.00 : null;
+            $royaltyNominal = $isSelesai ? (int) round($total * 0.10) : 0;
+
+            $order = Order::updateOrCreate(
+                ['kode' => $orderDef['kode']],
+                [
+                    'user_id' => $orderDef['user']->id,
+                    'outlet_id' => $outlet->id,
+                    'status' => $orderDef['status'],
+                    'total' => $total,
+                    'royalty_percent_saat_selesai' => $royaltyPercent,
+                    'royalty_nominal' => $royaltyNominal,
+                    'metode_bayar' => 'bayar_di_kasir',
+                    'selesai_at' => $orderDef['selesai_at'],
+                    'is_sample' => true,
+                    'created_at' => $orderDef['created_at'],
+                    'updated_at' => $orderDef['selesai_at'] ?? $orderDef['created_at'],
+                ]
+            );
+
+            $order->items()->delete();
+            foreach ($itemsPayload as $payload) {
+                OrderItem::create(array_merge($payload, [
+                    'order_id' => $order->id,
+                ]));
+            }
+        }
+    }
+}
