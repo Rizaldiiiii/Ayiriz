@@ -36,7 +36,7 @@
                     </div>
                 </div>
 
-                {{-- Detail & Form Pesan --}}
+                {{-- Detail & Form Pesan Tamu --}}
                 <div class="md:col-span-7">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="rounded-full bg-tint-navy px-3 py-1 font-heading text-xs font-bold text-navy">
@@ -77,7 +77,7 @@
                     </div>
 
                     <p class="mt-4 text-base leading-relaxed text-ink-secondary">
-                        {{ $menu->deskripsi ?: 'Menu khas anak kuliahan dari kantin mitra Ayiriz di depan gerbang kampus UNG. Dimasak hangat saat Anda datang dan membayar di kasir.' }}
+                        {{ $menu->deskripsi ?: 'Menu khas anak kuliahan dari kantin mitra Ayiriz di depan gerbang kampus UNG. Dimasak hangat saat Anda datang dan membayar tunai di kasir.' }}
                     </p>
 
                     {{-- Reaksi Emote (KF-07 — arti emote tertulis di samping pilihan, bukan hanya tooltip) --}}
@@ -100,69 +100,55 @@
                             </span>
                         </div>
                         <p class="mt-2 text-[11px] text-ink-muted">
-                            Catatan: Pemberian reaksi emote per pesanan Selesai (KF-07) dijadwalkan pada Tahap 2.
+                            Catatan: Pemberian reaksi emote lewat QR kasir atau kode pesanan (KF-07) dijadwalkan pada Tahap 2.
                         </p>
                     </div>
 
-                    {{-- Aksi Tambah ke Keranjang --}}
+                    {{-- Aksi Tambah ke Keranjang (Tamu Tanpa Login — Model B) --}}
                     <div class="mt-6 border-t border-divider pt-5">
-                        @auth
-                            @if (auth()->user()->isPelanggan())
-                                @if ($menu->bisaDipesan())
-                                    <form
-                                        action="{{ route('cart.items.store') }}"
-                                        method="POST"
-                                        x-data="{ qty: 1, max: {{ $menu->stok_porsi }} }"
-                                        class="flex flex-wrap items-center gap-4"
+                        @if ($menu->bisaDipesan())
+                            <form
+                                action="{{ route('cart.items.store') }}"
+                                method="POST"
+                                x-data="{ qty: 1, max: {{ $menu->stok_porsi }} }"
+                                class="flex flex-wrap items-center gap-4"
+                            >
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
+                                <input type="hidden" name="jumlah" :value="qty">
+
+                                <div class="inline-flex min-h-[46px] items-center rounded-full border border-border-strong bg-surface px-2">
+                                    <button
+                                        type="button"
+                                        @click="if (qty > 1) qty--"
+                                        class="flex h-10 w-10 items-center justify-center rounded-full font-heading text-lg font-bold text-ink hover:bg-surface-cream active:scale-[0.97]"
+                                        aria-label="Kurangi porsi"
                                     >
-                                        @csrf
-                                        <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                                        <input type="hidden" name="jumlah" :value="qty">
-
-                                        <div class="inline-flex min-h-[46px] items-center rounded-full border border-border-strong bg-surface px-2">
-                                            <button
-                                                type="button"
-                                                @click="if (qty > 1) qty--"
-                                                class="flex h-10 w-10 items-center justify-center rounded-full font-heading text-lg font-bold text-ink hover:bg-surface-cream active:scale-[0.97]"
-                                                aria-label="Kurangi porsi"
-                                            >
-                                                −
-                                            </button>
-                                            <span class="min-w-[36px] text-center font-heading text-base font-bold text-ink tabular-nums" x-text="qty">1</span>
-                                            <button
-                                                type="button"
-                                                @click="if (qty < max) qty++"
-                                                class="flex h-10 w-10 items-center justify-center rounded-full font-heading text-lg font-bold text-ink hover:bg-surface-cream active:scale-[0.97]"
-                                                aria-label="Tambah porsi"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-
-                                        <button type="submit" class="ayi-btn-primary px-6">
-                                            <span>Tambah ke Keranjang</span>
-                                        </button>
-                                    </form>
-                                @else
-                                    <button type="button" disabled class="ayi-btn-primary opacity-60 cursor-not-allowed">
-                                        Stok Porsi Habis
+                                        −
                                     </button>
-                                @endif
-                            @else
-                                <p class="text-sm text-ink-secondary">
-                                    Anda sedang masuk sebagai <strong>{{ auth()->user()->role->label() }}</strong>. Pemesanan dilakukan melalui akun Pelanggan.
-                                </p>
-                            @endif
+                                    <span class="min-w-[36px] text-center font-heading text-base font-bold text-ink tabular-nums" x-text="qty">1</span>
+                                    <button
+                                        type="button"
+                                        @click="if (qty < max) qty++"
+                                        class="flex h-10 w-10 items-center justify-center rounded-full font-heading text-lg font-bold text-ink hover:bg-surface-cream active:scale-[0.97]"
+                                        aria-label="Tambah porsi"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                <button type="submit" class="ayi-btn-primary px-6">
+                                    <span>Tambah ke Keranjang</span>
+                                </button>
+                            </form>
+                            <p class="mt-2.5 text-xs text-ink-secondary">
+                                Tidak perlu daftar/login. Cukup tulis nama pemesan saat submit keranjang ke antrean kasir.
+                            </p>
                         @else
-                            <div class="flex flex-wrap items-center gap-3">
-                                <a href="{{ route('login') }}" class="ayi-btn-primary">
-                                    Masuk Pelanggan untuk Memesan
-                                </a>
-                                <a href="{{ route('register') }}" class="ayi-btn-secondary">
-                                    Daftar Akun Baru
-                                </a>
-                            </div>
-                        @endauth
+                            <button type="button" disabled class="ayi-btn-primary opacity-60 cursor-not-allowed">
+                                Stok Porsi Habis
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

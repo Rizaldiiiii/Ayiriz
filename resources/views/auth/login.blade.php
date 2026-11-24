@@ -1,4 +1,4 @@
-<x-layouts.public title="Masuk Akun">
+<x-layouts.public title="Login Pusat & Admin Outlet">
     <section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div class="grid gap-8 lg:grid-cols-12 lg:items-start">
             {{-- Form Login --}}
@@ -11,10 +11,10 @@
                         Sistem Informasi Pengelolaan UMKM Lokal Ayiriz
                     </p>
                     <h1 class="mt-3 font-heading text-[28px] font-bold text-ink">
-                        Masuk ke Akun Anda
+                        Login Mitra Outlet & Pusat
                     </h1>
                     <p class="mt-1 text-sm text-ink-secondary">
-                        Satu pintu masuk untuk Pelanggan (Mahasiswa), Admin Outlet (Kantin Mitra), dan Pusat Ayiriz.
+                        Halaman login khusus untuk <strong>Pusat Ayiriz</strong> dan <strong>Admin Outlet (Kantin Mitra)</strong>. Pelanggan memesan langsung dari katalog sebagai tamu tanpa daftar/login.
                     </p>
                 </div>
 
@@ -33,7 +33,7 @@
                             required
                             autofocus
                             autocomplete="email"
-                            placeholder="nama@ayiriz.local"
+                            placeholder="outlet1@ayiriz.local"
                             class="ayi-input mt-1.5"
                             @error('email') aria-invalid="true" aria-describedby="email-error" @enderror
                         >
@@ -80,7 +80,7 @@
                     </div>
 
                     <button type="submit" :disabled="loading" class="ayi-btn-primary w-full">
-                        <span x-show="!loading">Masuk Sekarang</span>
+                        <span x-show="!loading">Masuk ke Panel</span>
                         <span x-cloak x-show="loading" class="flex items-center gap-2">
                             <span class="loading-spinner"></span>
                             <span>Memproses...</span>
@@ -90,15 +90,15 @@
 
                 <div class="mt-6 border-t border-divider pt-5 text-center sm:text-left">
                     <p class="text-sm text-ink-secondary">
-                        Mahasiswa belum punya akun pelanggan?
-                        <a href="{{ route('register') }}" class="font-bold text-chili underline decoration-chili/40 underline-offset-4 hover:text-chili-hover">
-                            Daftar Akun Pelanggan
+                        Ingin memesan makanan/minuman sebagai pelanggan?
+                        <a href="{{ route('catalog.index') }}" class="font-bold text-chili underline decoration-chili/40 underline-offset-4 hover:text-chili-hover">
+                            Pesan Langsung Tanpa Login di Katalog →
                         </a>
                     </p>
                 </div>
             </div>
 
-            {{-- Panel Info Akun Contoh (Data Contoh Seeder PRD §6) --}}
+            {{-- Panel Info Akun Contoh (Data Contoh Seeder PRD §6 — Tanpa Akun Pelanggan) --}}
             <aside class="ayi-card bg-surface-cream p-6 lg:col-span-5" data-reveal="up" style="--reveal-delay: 100ms">
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="font-heading text-[21px] font-bold text-navy">
@@ -107,7 +107,7 @@
                     <span class="ayi-chip-sample">Data Contoh</span>
                 </div>
                 <p class="mt-1.5 text-xs leading-relaxed text-ink-secondary">
-                    Gunakan akun contoh berikut untuk menguji alur end-to-end Tahap 1 (Pesan Online → Kasir Terima Bayar → Selesai). Klik tombol <strong>Isi</strong> untuk menyalin ke form login:
+                    Gunakan akun contoh berikut untuk menguji alur end-to-end Tahap 1 Model B (Pelanggan Tamu Submit Antrean → Kasir Konfirmasi Bayar Tunai → Diproses → Selesai). Klik tombol <strong>Isi</strong> untuk menyalin ke form login:
                 </p>
 
                 <div class="mt-4 space-y-3 text-xs">
@@ -137,22 +137,14 @@
                             </button>
                         </div>
                         <p class="mt-1 text-ink-secondary"><code>outlet1@ayiriz.local</code> / <code>Outlet123!</code></p>
-                        <p class="mt-1 text-[11px] text-ink-muted">Juga tersedia: <code>outlet2@ayiriz.local</code>, <code>outlet3@ayiriz.local</code> (sandi sama)</p>
+                        <p class="mt-1 text-[11px] text-ink-muted">Juga tersedia: <code>outlet2@ayiriz.local</code>, <code>outlet3@ayiriz.local</code>, <code>outlet4@ayiriz.local</code> (sandi sama)</p>
                     </div>
 
-                    <div class="rounded-[12px] border border-border-ayi bg-surface p-3.5">
-                        <div class="flex items-center justify-between">
-                            <span class="font-heading text-sm font-bold text-leaf">Pelanggan 1 (Mahasiswa UNG)</span>
-                            <button
-                                type="button"
-                                onclick="document.getElementById('email').value='pelanggan1@ayiriz.local';document.getElementById('password').value='Pelanggan123!';"
-                                class="rounded-full bg-tint-leaf px-3 py-1 font-heading text-xs font-bold text-leaf hover:bg-leaf hover:text-white transition"
-                            >
-                                Isi
-                            </button>
-                        </div>
-                        <p class="mt-1 text-ink-secondary"><code>pelanggan1@ayiriz.local</code> / <code>Pelanggan123!</code></p>
-                        <p class="mt-1 text-[11px] text-ink-muted">Juga tersedia: <code>pelanggan2@ayiriz.local</code> (sandi sama)</p>
+                    <div class="rounded-[12px] border border-divider bg-tint-sunny p-3.5 text-ink">
+                        <p class="font-heading text-sm font-bold text-warning">Pelanggan = Tamu Tanpa Akun</p>
+                        <p class="mt-1 text-ink-secondary">
+                            Sesuai PRD v1.1 (Model B), mahasiswa memesan langsung dari katalog tanpa login. Cukup pilih menu, tulis <strong>Nama Pemesan</strong> di halaman Keranjang, lalu bayar tunai di kasir.
+                        </p>
                     </div>
                 </div>
             </aside>

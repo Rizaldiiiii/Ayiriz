@@ -3,27 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Cart\AddCartItemRequest;
+use App\Http\Requests\Cart\SubmitAntreanRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
 use App\Models\Menu;
+use App\Services\AntreanService;
 use App\Services\CartService;
-use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CartController extends Controller
 {
     public function __construct(
         private readonly CartService $cartService,
-        private readonly OrderService $orderService
+        private readonly AntreanService $antreanService
     ) {}
 
     public function index(): View
     {
         $cart = $this->cartService->getCartDetails();
+        $lastAntrean = $this->cartService->getLastSubmittedAntrean();
 
         return view('pelanggan.cart', [
             'cart' => $cart,
+            'lastAntrean' => $lastAntrean,
         ]);
     }
 
@@ -81,19 +83,36 @@ class CartController extends Controller
             ->with('toast_info', 'Keranjang telah dikosongkan.');
     }
 
-    public function checkout(Request $request): RedirectResponse
+    public function submit(SubmitAntreanRequest $request): RedirectResponse
     {
-        $this->authorize('create', \App\Models\Order::class);
+        $namaPemesan = $request->validated()['nama_pemesan'];
+        $payload = $this->cartService->getSubmitPayload();
 
-        $payload = $this->cartService->getCheckoutPayload();
+        $antrean = $this->antreanService->submit($namaPemesan, $payload);
 
-        $order = $this->orderService->checkout($request->user(), $payload);
+        $this->cartService->storeLastSubmittedAntrean([
+            'kode' => $antrean->kode,
+            'nama_pemesan' => $antrean->nama_pemesan,
+            'outlet_nama' => $antrean->outlet->nama,
+            'outlet_alamat' => $antrean->outlet->alamat,
+            'outlet_jam_buka' => $antrean->outlet->jam_buka,
+            'outlet_slug' => $antrean->outlet->slug,
+            'total' => $antrean->total,
+            'created_at' => $antrean->created_at?->translatedFormat('d M Y, H:i') . ' WITA',
+            'items' => $antrean->items->map(fn ($item) => [
+                'nama_menu_saat_submit' => $item->nama_menu_saat_submit,
+                'harga_saat_submit' => $item->harga_saat_submit,
+                'jumlah' => $item->jumlah,
+                'subtotal' => $item->subtotal,
+            ])->all(),
+        ]);
+
         $this->cartService->clear();
 
-        return redirect()->route('pelanggan.orders.show', $order->kode)
+        return redirect()->route('cart.index')
             ->with(
                 'toast_success',
-                "Pesanan {$order->kode} berhasil dibuat! Silakan datang dan bayar di kasir {$order->outlet->nama}."
+                "Antrean {$antrean->kode} atas nama {$antrean->nama_pemesan} berhasil masuk daftar tunggu! Silakan tunjukkan kode ini dan bayar tunai di kasir {$antrean->outlet->nama}."
             );
     }
 }

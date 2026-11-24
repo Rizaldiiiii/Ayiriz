@@ -70,31 +70,25 @@
                     Katalog
                 </a>
 
-                @auth
-                    @if (auth()->user()->isPelanggan())
-                        <a
-                            href="{{ route('pelanggan.orders.index') }}"
-                            class="hidden rounded-full px-3.5 py-2 font-heading text-sm font-bold transition sm:inline-flex {{ request()->routeIs('pelanggan.orders.*') ? 'bg-tint-chili text-chili' : 'text-ink-secondary hover:text-chili' }}"
-                        >
-                            Pesanan Saya
-                        </a>
+                {{-- Keranjang Tamu (Tanpa Login — KF-04 Model B) --}}
+                <a
+                    href="{{ route('cart.index') }}"
+                    class="relative inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border-ayi bg-surface px-3.5 py-2 font-heading text-sm font-bold text-ink shadow-ayi-xs transition hover:border-chili"
+                    aria-label="Keranjang pesanan ({{ $cartCount }} item)"
+                >
+                    <svg class="h-5 w-5 text-chili" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="8" cy="21" r="1" />
+                        <circle cx="19" cy="21" r="1" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                    </svg>
+                    <span class="hidden sm:inline">Keranjang</span>
+                    <span class="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-chili px-1.5 text-xs font-bold text-white tabular-nums">
+                        {{ $cartCount }}
+                    </span>
+                </a>
 
-                        <a
-                            href="{{ route('cart.index') }}"
-                            class="relative inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border-ayi bg-surface px-3.5 py-2 font-heading text-sm font-bold text-ink shadow-ayi-xs transition hover:border-chili"
-                            aria-label="Keranjang belanja ({{ $cartCount }} item)"
-                        >
-                            <svg class="h-5 w-5 text-chili" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <circle cx="8" cy="21" r="1" />
-                                <circle cx="19" cy="21" r="1" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                            </svg>
-                            <span class="hidden sm:inline">Keranjang</span>
-                            <span class="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-chili px-1.5 text-xs font-bold text-white tabular-nums">
-                                {{ $cartCount }}
-                            </span>
-                        </a>
-                    @elseif (auth()->user()->isOutlet())
+                @auth
+                    @if (auth()->user()->isOutlet())
                         <a href="{{ route('outlet.dashboard') }}" class="ayi-btn-primary min-h-[40px] px-4 py-2 text-sm">
                             Panel Kasir Outlet
                         </a>
@@ -155,15 +149,6 @@
                                 </span>
                             </div>
 
-                            @if (auth()->user()->isPelanggan())
-                                <a href="{{ route('pelanggan.orders.index') }}" class="mt-1 flex items-center gap-2 rounded-[10px] px-3 py-2.5 text-sm font-medium text-ink hover:bg-tint-chili hover:text-chili">
-                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                                    </svg>
-                                    <span>Riwayat Pesanan Saya</span>
-                                </a>
-                            @endif
-
                             <form action="{{ route('logout') }}" method="POST" class="mt-1">
                                 @csrf
                                 <button
@@ -180,10 +165,7 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" class="ayi-btn-secondary min-h-[42px] px-4 py-2 text-sm">
-                        Masuk
-                    </a>
-                    <a href="{{ route('register') }}" class="ayi-btn-primary min-h-[42px] px-4 py-2 text-sm">
-                        Daftar
+                        Login Mitra / Pusat
                     </a>
                 @endauth
             </nav>
@@ -276,7 +258,7 @@
                 </h2>
 
                 <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
-                    Satu pesanan di Ayiriz hanya berlaku untuk <strong>satu kantin</strong> karena pembayaran dan pengambilan dilakukan di kasir kantin tersebut.
+                    Satu pesanan di Ayiriz hanya berlaku untuk <strong>satu kantin</strong> karena pembayaran tunai dan pengambilan dilakukan di kasir kantin tersebut.
                 </p>
                 <p class="mt-2 rounded-[12px] bg-surface-cream p-3 text-sm text-ink">
                     Keranjang Anda saat ini berisi menu dari <strong>{{ $conflict['current_outlet_nama'] }}</strong>. Kosongkan keranjang lama dan ganti dengan <strong>{{ $conflict['menu_nama'] }}</strong> dari <strong>{{ $conflict['new_outlet_nama'] }}</strong>?
@@ -323,22 +305,22 @@
                         Sistem Informasi Pengelolaan UMKM Lokal Ayiriz
                     </p>
                     <p class="mt-1 max-w-xl text-xs text-ink-secondary">
-                        Kantin-kantin mitra di depan gerbang kampus Universitas Negeri Gorontalo (UNG). Pesan online dari HP, ambil dan bayar langsung di kasir kantin. Prototipe tugas kuliah — seluruh kantin, menu, dan transaksi adalah data contoh fiktif.
+                        Kantin-kantin mitra di depan gerbang kampus Universitas Negeri Gorontalo (UNG). Pesan online tanpa daftar/login, ambil dan bayar tunai langsung di kasir kantin. Prototipe tugas kuliah — seluruh kantin, menu, dan transaksi adalah data contoh fiktif.
                     </p>
                 </div>
 
                 <div class="flex flex-wrap gap-4 text-sm font-semibold text-navy">
                     <a href="{{ route('catalog.index') }}" class="underline decoration-navy/40 underline-offset-4 hover:text-chili">Katalog Kantin</a>
+                    <a href="{{ route('cart.index') }}" class="underline decoration-navy/40 underline-offset-4 hover:text-chili">Keranjang Pesanan</a>
                     @guest
-                        <a href="{{ route('login') }}" class="underline decoration-navy/40 underline-offset-4 hover:text-chili">Masuk Akun</a>
-                        <a href="{{ route('register') }}" class="underline decoration-navy/40 underline-offset-4 hover:text-chili">Daftar Pelanggan</a>
+                        <a href="{{ route('login') }}" class="underline decoration-navy/40 underline-offset-4 hover:text-chili">Login Mitra / Pusat</a>
                     @endguest
                 </div>
             </div>
         </div>
     </footer>
 
-    {{-- Mobile Bottom Tab Bar (Pelanggan / Publik, maksimal 4 item sesuai Minimalism §5.5) --}}
+    {{-- Mobile Bottom Tab Bar (Tamu / Publik, maksimal 4 item sesuai Minimalism §5.5) --}}
     <nav
         class="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-around border-t border-border-ayi bg-surface px-2 md:hidden"
         aria-label="Navigasi bawah mobile"
@@ -366,40 +348,28 @@
             <span class="mt-0.5">Katalog</span>
         </a>
 
-        @auth
-            @if (auth()->user()->isPelanggan())
-                <a
-                    href="{{ route('cart.index') }}"
-                    class="relative flex min-h-[44px] min-w-[64px] flex-col items-center justify-center rounded-lg px-2 py-1 text-xs font-bold {{ request()->routeIs('cart.*') ? 'text-chili' : 'text-ink-secondary' }}"
-                >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <circle cx="8" cy="21" r="1" />
-                        <circle cx="19" cy="21" r="1" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                    </svg>
-                    <span class="mt-0.5">Keranjang ({{ $cartCount }})</span>
-                </a>
+        <a
+            href="{{ route('cart.index') }}"
+            class="relative flex min-h-[44px] min-w-[64px] flex-col items-center justify-center rounded-lg px-2 py-1 text-xs font-bold {{ request()->routeIs('cart.*') ? 'text-chili' : 'text-ink-secondary' }}"
+        >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+            </svg>
+            <span class="mt-0.5">Keranjang ({{ $cartCount }})</span>
+        </a>
 
-                <a
-                    href="{{ route('pelanggan.orders.index') }}"
-                    class="flex min-h-[44px] min-w-[64px] flex-col items-center justify-center rounded-lg px-2 py-1 text-xs font-bold {{ request()->routeIs('pelanggan.orders.*') ? 'text-chili' : 'text-ink-secondary' }}"
-                >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                    </svg>
-                    <span class="mt-0.5">Pesanan</span>
-                </a>
-            @else
-                <a
-                    href="{{ auth()->user()->isPusat() ? route('pusat.dashboard') : route('outlet.dashboard') }}"
-                    class="flex min-h-[44px] min-w-[64px] flex-col items-center justify-center rounded-lg px-2 py-1 text-xs font-bold text-chili"
-                >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18" />
-                    </svg>
-                    <span class="mt-0.5">Panel</span>
-                </a>
-            @endif
+        @auth
+            <a
+                href="{{ auth()->user()->isPusat() ? route('pusat.dashboard') : route('outlet.dashboard') }}"
+                class="flex min-h-[44px] min-w-[64px] flex-col items-center justify-center rounded-lg px-2 py-1 text-xs font-bold text-chili"
+            >
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18" />
+                </svg>
+                <span class="mt-0.5">Panel</span>
+            </a>
         @else
             <a
                 href="{{ route('login') }}"
@@ -408,7 +378,7 @@
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
                 </svg>
-                <span class="mt-0.5">Masuk</span>
+                <span class="mt-0.5">Mitra</span>
             </a>
         @endauth
     </nav>

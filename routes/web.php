@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
-use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\Outlet\CashierOrderController;
 use App\Http\Controllers\Outlet\MenuManagementController;
 use App\Http\Controllers\Outlet\OutletDashboardController;
@@ -12,14 +11,12 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Autentikasi (KF-11)
+| Autentikasi (KF-11: Hanya Login Pusat & Admin Outlet — Tanpa Register Pelanggan)
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])
@@ -46,11 +43,14 @@ Route::prefix('outlet')
         Route::put('/menu/{menu}', [MenuManagementController::class, 'update'])->name('menus.update');
         Route::delete('/menu/{menu}', [MenuManagementController::class, 'destroy'])->name('menus.destroy');
 
-        // KF-05 Kasir dan Penyelesaian Pesanan
+        // KF-05 Kasir: Daftar Tunggu (Antrean) + Konfirmasi Bayar Tunai + Penyelesaian Pesanan
         Route::get('/pesanan', [CashierOrderController::class, 'index'])->name('orders.index');
+        Route::get('/antrean/{antrean}', [CashierOrderController::class, 'showAntrean'])->name('antrean.show');
+        Route::post('/antrean/{antrean}/konfirmasi-bayar', [CashierOrderController::class, 'confirmPayment'])->name('antrean.confirm');
+        Route::delete('/antrean/{antrean}', [CashierOrderController::class, 'destroyAntrean'])->name('antrean.destroy');
+
         Route::get('/pesanan/{order}', [CashierOrderController::class, 'show'])->name('orders.show');
         Route::patch('/pesanan/{order}/selesai', [CashierOrderController::class, 'complete'])->name('orders.complete');
-        Route::delete('/pesanan/{order}', [CashierOrderController::class, 'destroy'])->name('orders.destroy');
 
         // Stub Tahap 2 (KF-06 Stok, KF-09 Laporan Outlet)
         Route::get('/stok', [OutletDashboardController::class, 'stubStok'])->name('stok');
@@ -83,28 +83,24 @@ Route::prefix('pusat')
 
 /*
 |--------------------------------------------------------------------------
-| Pelanggan — Keranjang & Pemesanan Online (KF-04)
+| Pelanggan Tamu (Tanpa Login) — Keranjang Session & Submit ke Antrean (KF-04)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:pelanggan'])->group(function (): void {
-    Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/keranjang/item', [CartController::class, 'addItem'])->name('cart.items.store');
-    Route::patch('/keranjang/item/{menu}', [CartController::class, 'updateItem'])->name('cart.items.update');
-    Route::delete('/keranjang/item/{menu}', [CartController::class, 'removeItem'])->name('cart.items.destroy');
-    Route::delete('/keranjang', [CartController::class, 'clear'])->name('cart.clear');
-    Route::post('/keranjang/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-
-    Route::get('/pesanan-saya', [CustomerOrderController::class, 'index'])->name('pelanggan.orders.index');
-    Route::get('/pesanan/{kode}', [CustomerOrderController::class, 'show'])->name('pelanggan.orders.show');
-});
+Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
+Route::post('/keranjang/item', [CartController::class, 'addItem'])->name('cart.items.store');
+Route::patch('/keranjang/item/{menu}', [CartController::class, 'updateItem'])->name('cart.items.update');
+Route::delete('/keranjang/item/{menu}', [CartController::class, 'removeItem'])->name('cart.items.destroy');
+Route::delete('/keranjang', [CartController::class, 'clear'])->name('cart.clear');
+Route::post('/keranjang/submit', [CartController::class, 'submit'])->name('cart.submit');
 
 /*
 |--------------------------------------------------------------------------
-| Katalog Publik, Pencarian, dan Filter (KF-03 — Tanpa Login)
+| Katalog Publik, Pencarian, dan Filter (KF-03 — Tanpa Login) + Stub Reaksi (KF-07)
 |--------------------------------------------------------------------------
 */
 Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/outlet/{slug}', [CatalogController::class, 'showOutlet'])
-    ->where('slug', '^(?!dashboard$|menu$|pesanan$|stok$|laporan$)[a-zA-Z0-9\-]+$')
+    ->where('slug', '^(?!dashboard$|menu$|pesanan$|antrean$|stok$|laporan$)[a-zA-Z0-9\-]+$')
     ->name('catalog.outlet');
 Route::get('/menu/{menu}', [CatalogController::class, 'showMenu'])->name('catalog.menu');
+Route::get('/reaksi/{kode}', [CatalogController::class, 'stubReaksi'])->name('catalog.reaksi');

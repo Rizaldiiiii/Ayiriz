@@ -1,7 +1,7 @@
 <x-layouts.panel :title="'Kasir Pesanan ' . $order->kode">
     <nav aria-label="Breadcrumb" class="mb-4 text-xs font-semibold text-ink-secondary">
         <ol class="flex items-center gap-2">
-            <li><a href="{{ route('outlet.orders.index') }}" class="text-navy underline hover:text-chili">Kasir & Pesanan Masuk</a></li>
+            <li><a href="{{ route('outlet.orders.index') }}" class="text-navy underline hover:text-chili">Kasir: Daftar Tunggu & Pesanan</a></li>
             <li aria-hidden="true">/</li>
             <li class="text-ink">{{ $order->kode }}</li>
         </ol>
@@ -9,9 +9,10 @@
 
     @php
         $estimasiRoyalti = (int) round($order->total * ((float) $outlet->royalty_percent / 100));
+        $reaksiUrl = route('catalog.reaksi', $order->kode);
     @endphp
 
-    <div class="grid gap-6 lg:grid-cols-12 lg:items-start" x-data="{ confirmSelesai: false, confirmHapus: false }">
+    <div class="grid gap-6 lg:grid-cols-12 lg:items-start" x-data="{ confirmSelesai: false }">
         {{-- Kartu Struk & Rincian Pesanan --}}
         <div class="ayi-card p-6 sm:p-8 lg:col-span-8" data-reveal="up">
             <div class="flex flex-col justify-between gap-4 border-b border-divider pb-5 sm:flex-row sm:items-center">
@@ -28,7 +29,7 @@
                         {{ $order->kode }}
                     </h1>
                     <p class="text-xs text-ink-secondary">
-                        Waktu Pesan: {{ $order->created_at?->translatedFormat('d F Y, H:i') }} WITA
+                        Dikonfirmasi Bayar: {{ $order->created_at?->translatedFormat('d F Y, H:i') }} WITA
                         @if ($order->isSelesai() && $order->selesai_at)
                             · Selesai: {{ $order->selesai_at->translatedFormat('d F Y, H:i') }} WITA
                         @endif
@@ -38,17 +39,17 @@
                 <div class="flex flex-col items-start gap-2 sm:items-end">
                     <x-status-badge :status="$order->status" type="order" />
                     <span class="rounded-full bg-tint-navy px-3 py-1 font-heading text-xs font-bold text-navy">
-                        Metode: Bayar di Kasir
+                        Metode: Bayar Tunai di Kasir
                     </span>
                 </div>
             </div>
 
-            {{-- Info Pelanggan & Kantin --}}
+            {{-- Info Pemesan & Kantin --}}
             <div class="mt-5 grid gap-4 sm:grid-cols-2">
                 <div class="rounded-[12px] bg-surface-cream p-4">
-                    <span class="font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">Pelanggan Pemesan</span>
-                    <p class="mt-1 font-heading text-lg font-bold text-ink">{{ $order->user?->name }}</p>
-                    <p class="text-xs text-ink-secondary">{{ $order->user?->email }}</p>
+                    <span class="font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">Nama Pemesan</span>
+                    <p class="mt-1 font-heading text-lg font-bold text-ink">{{ $order->nama_pemesan }}</p>
+                    <p class="text-xs text-ink-secondary">Pembayaran tunai telah dikonfirmasi kasir</p>
                 </div>
 
                 <div class="rounded-[12px] bg-surface-cream p-4">
@@ -58,10 +59,10 @@
                 </div>
             </div>
 
-            {{-- Tabel Item Struk --}}
+            {{-- Tabel Item Struk (Harga Dikunci Saat Submit) --}}
             <div class="mt-6">
                 <h2 class="font-heading text-lg font-bold text-ink">
-                    RINCIAN ITEM PESANAN
+                    RINCIAN ITEM PESANAN (HARGA TERKUNCI SAAT SUBMIT)
                 </h2>
 
                 <div class="mt-3 overflow-hidden rounded-[12px] border border-border-ayi">
@@ -69,7 +70,7 @@
                         <thead class="border-b border-divider bg-tint-sunny font-heading text-xs font-bold uppercase text-ink">
                             <tr>
                                 <th class="px-4 py-3">Item Menu</th>
-                                <th class="px-4 py-3 text-right">Harga Checkout</th>
+                                <th class="px-4 py-3 text-right">Harga Submit</th>
                                 <th class="px-4 py-3 text-center">Qty</th>
                                 <th class="px-4 py-3 text-right">Subtotal</th>
                             </tr>
@@ -78,7 +79,7 @@
                             @foreach ($order->items as $item)
                                 <tr>
                                     <td class="px-4 py-3.5 font-semibold text-ink">
-                                        {{ $item->nama_menu_saat_checkout }}
+                                        {{ $item->nama_menu_saat_submit }}
                                     </td>
                                     <td class="px-4 py-3.5 text-right font-heading font-bold text-ink-secondary tabular-nums">
                                         {{ $item->formattedHarga() }}
@@ -95,7 +96,7 @@
                         <tfoot class="border-t border-border-ayi bg-surface-cream">
                             <tr>
                                 <td colspan="3" class="px-4 py-3 font-heading text-sm font-bold text-ink">
-                                    Total Diterima di Kasir
+                                    Total Tunai Diterima di Kasir
                                 </td>
                                 <td class="px-4 py-3 text-right font-heading text-2xl font-bold text-ink tabular-nums">
                                     {{ $order->formattedTotal() }}
@@ -106,7 +107,7 @@
                                     @if ($order->isSelesai())
                                         Royalti Franchise Ayiriz ({{ number_format((float) $order->royalty_percent_saat_selesai, 0) }}% — Tercatat)
                                     @else
-                                        Estimasi Royalti Franchise ({{ number_format((float) $outlet->royalty_percent, 0) }}% — Baru dihitung saat Selesai)
+                                        Estimasi Royalti Franchise ({{ number_format((float) $outlet->royalty_percent, 0) }}% — Dicatat saat Selesai)
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-right font-heading text-lg font-bold text-chili tabular-nums">
@@ -131,9 +132,41 @@
                     </table>
                 </div>
             </div>
+
+            {{-- QR Reaksi Pesanan di Layar Kasir (KF-05 & KF-07 — Stub Tahap 2) --}}
+            <div class="mt-6 rounded-[12px] border border-border-ayi bg-surface-cream p-5">
+                <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="font-heading text-lg font-bold text-navy">
+                                QR Reaksi Emote Pelanggan (KF-07)
+                            </h3>
+                            <span class="rounded-full bg-divider px-2.5 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">
+                                Stub Tahap 2
+                            </span>
+                        </div>
+                        <p class="mt-1 text-xs leading-relaxed text-ink-secondary">
+                            Karena pesanan <strong>{{ $order->kode }}</strong> sudah dibayar tunai, pelanggan dapat memindai QR reaksi di layar kasir ini untuk membuka halaman reaksi (<strong>😋 Enak · 🥵 Pedas · 🫠 Manis</strong>). Bukan QRIS pembayaran.
+                        </p>
+                        <p class="mt-1.5 text-xs font-semibold text-navy">
+                            Tautan Reaksi: <a href="{{ $reaksiUrl }}" class="underline hover:text-chili">{{ $reaksiUrl }}</a>
+                        </p>
+                    </div>
+
+                    <div class="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-[12px] border border-border-strong bg-surface p-2 text-center shadow-ayi-xs">
+                        <svg class="h-12 w-12 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 14h3v3h-3zm4 4h3v3h-3zm0-4h3m-7 7h3" />
+                        </svg>
+                        <span class="mt-1 font-heading text-[10px] font-bold text-ink-secondary">{{ $order->kode }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {{-- Panel Tindakan Kasir (KF-05) --}}
+        {{-- Panel Tindakan Kasir (KF-05 Model B: Pesanan sudah dibayar tidak bisa dihapus) --}}
         <aside class="ayi-card p-6 lg:col-span-4">
             <h2 class="font-heading text-xl font-bold text-ink">
                 TINDAKAN KASIR
@@ -141,43 +174,35 @@
 
             @if ($order->isDiproses())
                 <div class="mt-3 rounded-[12px] bg-tint-tang p-4 text-xs leading-relaxed text-[#8A3410]">
-                    <p class="font-heading text-sm font-bold">Status Saat Ini: Diproses</p>
+                    <p class="font-heading text-sm font-bold">Status Saat Ini: Diproses (Sudah Dibayar)</p>
                     <p class="mt-1">
-                        Outlet memasak pesanan saat pelanggan datang dan membayar di kasir. Setelah uang diterima dan makanan diserahkan, klik <strong>Tandai Selesai</strong>.
+                        Pembayaran tunai telah diterima dan stok porsi telah dikurangi. Silakan masak pesanan untuk <strong>{{ $order->nama_pemesan }}</strong>, lalu klik <strong>Tandai Selesai</strong> saat pesanan diambil.
                     </p>
                 </div>
 
-                <div class="mt-5 space-y-3">
+                <div class="mt-5">
                     <button
                         type="button"
                         @click="confirmSelesai = true"
                         class="ayi-btn-primary w-full"
                     >
-                        Terima Bayar & Tandai Selesai
-                    </button>
-
-                    <button
-                        type="button"
-                        @click="confirmHapus = true"
-                        class="w-full rounded-full border border-chili bg-tint-chili px-5 py-3 font-heading text-sm font-bold text-chili hover:bg-chili hover:text-white transition"
-                    >
-                        Hapus Pesanan (Pelanggan Tidak Datang)
+                        Tandai Selesai (Diambil Pelanggan)
                     </button>
                 </div>
 
-                <p class="mt-4 text-xs leading-relaxed text-ink-muted">
-                    Apabila pelanggan batal/tidak datang ke kasir, hapus pesanan Diproses ini agar <strong>stok porsi menu kembali</strong> tanpa royalti dan tanpa pengurangan stok bahan.
+                <p class="mt-4 rounded-[10px] bg-surface-cream p-3 text-xs leading-relaxed text-ink-secondary">
+                    Sesuai aturan Model B (KF-05), pesanan yang sudah dibayar dan berstatus <strong>Diproses</strong> tidak dapat dihapus.
                 </p>
             @else
                 <div class="mt-3 rounded-[12px] bg-tint-leaf p-4 text-xs leading-relaxed text-leaf">
                     <p class="font-heading text-sm font-bold">Transaksi Kasir Selesai</p>
                     <p class="mt-1">
-                        Pembayaran sebesar <strong>{{ $order->formattedTotal() }}</strong> telah diterima di kasir dan royalti <strong>{{ $order->formattedRoyalty() }}</strong> ({{ number_format((float) $order->royalty_percent_saat_selesai, 0) }}%) telah tercatat.
+                        Pesanan atas nama <strong>{{ $order->nama_pemesan }}</strong> sebesar <strong>{{ $order->formattedTotal() }}</strong> telah selesai dan royalti <strong>{{ $order->formattedRoyalty() }}</strong> ({{ number_format((float) $order->royalty_percent_saat_selesai, 0) }}%) telah tercatat.
                     </p>
                 </div>
 
                 <p class="mt-3 text-xs text-ink-secondary">
-                    Sesuai aturan sistem (KF-05), pesanan yang sudah berstatus <strong>Selesai</strong> bersifat final: tidak dapat dikembalikan ke Diproses dan tidak dapat dihapus.
+                    Pesanan yang sudah berstatus <strong>Selesai</strong> bersifat final: tidak dapat dikembalikan ke Diproses dan tidak dapat dihapus.
                 </p>
 
                 <button
@@ -190,11 +215,11 @@
             @endif
 
             <a href="{{ route('outlet.orders.index') }}" class="ayi-btn-secondary mt-3 w-full">
-                ← Kembali ke Daftar Pesanan
+                ← Kembali ke Daftar Kasir
             </a>
         </aside>
 
-        {{-- Modal Konfirmasi Tandai Selesai (Motion-Ayiriz.md §7.1: tidak tertutup saat klik overlay tanpa sengaja) --}}
+        {{-- Modal Konfirmasi Tandai Selesai --}}
         @if ($order->isDiproses())
             <div
                 x-cloak
@@ -226,7 +251,7 @@
                     </h2>
 
                     <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
-                        Pastikan pembayaran sebesar <strong>{{ $order->formattedTotal() }}</strong> sudah diterima di kasir dan pesanan telah diambil pelanggan. Status tidak bisa dikembalikan ke Diproses, dan royalti <strong>Rp {{ number_format($estimasiRoyalti, 0, ',', '.') }}</strong> (10%) akan langsung dicatat.
+                        Pastikan pesanan untuk <strong>{{ $order->nama_pemesan }}</strong> telah selesai dimasak dan diambil pelanggan. Status tidak bisa dikembalikan ke Diproses, dan royalti <strong>Rp {{ number_format($estimasiRoyalti, 0, ',', '.') }}</strong> (10%) akan langsung dicatat.
                     </p>
 
                     <div class="mt-6 flex items-center justify-end gap-3">
@@ -242,65 +267,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="ayi-btn-primary min-h-[42px] px-5 py-2 text-sm">
-                                Ya, Terima Bayar & Selesai
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Modal Konfirmasi Hapus Pesanan Diproses (Pelanggan Tidak Datang) --}}
-            <div
-                x-cloak
-                x-show="confirmHapus"
-                @keydown.escape.window="confirmHapus = false"
-                class="fixed inset-0 z-50 flex items-center justify-center p-4"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-hapus-title"
-            >
-                <div
-                    class="absolute inset-0 bg-[#211D18]/45"
-                    x-show="confirmHapus"
-                    x-transition.opacity.duration.200ms
-                ></div>
-
-                <div
-                    class="relative w-full max-w-md rounded-[16px] border border-border-ayi bg-surface p-6 shadow-ayi-lg"
-                    x-show="confirmHapus"
-                    x-transition:enter="transition ease-out duration-250"
-                    x-transition:enter-start="opacity-0 scale-95 translate-y-3"
-                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 scale-95 translate-y-3"
-                >
-                    <h2 id="modal-hapus-title" class="font-heading text-[22px] font-bold text-chili">
-                        Hapus Pesanan {{ $order->kode }}?
-                    </h2>
-
-                    <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
-                        Gunakan tindakan ini apabila pelanggan tidak datang ke kasir. Karena makanan belum dimasak:
-                    </p>
-                    <ul class="mt-2 list-disc space-y-1 pl-5 text-xs text-ink-secondary">
-                        <li>Seluruh stok porsi menu pada pesanan ini akan <strong>dikembalikan</strong>.</li>
-                        <li><strong>Tidak ada royalti</strong> yang dihitung dan tidak ada pengurangan stok bahan.</li>
-                    </ul>
-
-                    <div class="mt-6 flex items-center justify-end gap-3">
-                        <button
-                            type="button"
-                            @click="confirmHapus = false"
-                            class="ayi-btn-secondary min-h-[42px] px-4 py-2 text-sm"
-                        >
-                            Batal
-                        </button>
-
-                        <form action="{{ route('outlet.orders.destroy', $order) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="ayi-btn-primary min-h-[42px] px-5 py-2 text-sm">
-                                Ya, Hapus & Kembalikan Stok Porsi
+                                Ya, Tandai Selesai
                             </button>
                         </form>
                     </div>

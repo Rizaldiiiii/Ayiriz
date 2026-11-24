@@ -15,7 +15,7 @@ class Order extends Model
 
     protected $fillable = [
         'kode',
-        'user_id',
+        'nama_pemesan',
         'outlet_id',
         'status',
         'total',
@@ -36,11 +36,6 @@ class Order extends Model
             'selesai_at' => 'datetime',
             'is_sample' => 'boolean',
         ];
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function outlet(): BelongsTo

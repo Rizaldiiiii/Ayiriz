@@ -145,4 +145,11 @@ class CatalogController extends Controller
             'cart' => $cart,
         ]);
     }
+
+    public function stubReaksi(string $kode): View
+    {
+        return view('public.reaksi-stub', [
+            'kode' => $kode,
+        ]);
+    }
 }

@@ -15,8 +15,8 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'menu_id',
-        'nama_menu_saat_checkout',
-        'harga_saat_checkout',
+        'nama_menu_saat_submit',
+        'harga_saat_submit',
         'jumlah',
         'subtotal',
     ];
@@ -24,7 +24,7 @@ class OrderItem extends Model
     protected function casts(): array
     {
         return [
-            'harga_saat_checkout' => 'integer',
+            'harga_saat_submit' => 'integer',
             'jumlah' => 'integer',
             'subtotal' => 'integer',
         ];
@@ -42,7 +42,7 @@ class OrderItem extends Model
 
     public function formattedHarga(): string
     {
-        return 'Rp ' . number_format($this->harga_saat_checkout, 0, ',', '.');
+        return 'Rp ' . number_format($this->harga_saat_submit, 0, ',', '.');
     }
 
     public function formattedSubtotal(): string

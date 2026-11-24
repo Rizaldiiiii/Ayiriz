@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Enums\OrderStatus;
 use App\Enums\OutletStatus;
 use App\Enums\UserRole;
+use App\Models\Antrean;
+use App\Models\AntreanItem;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Order;
@@ -17,7 +19,8 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database (Data Contoh Fiktif — PRD §6 & ERD §4).
+     * Seed the application's database (Data Contoh Fiktif — PRD v1.1 §6 & ERD v1.1 §4, Model B).
+     * Tanpa akun pelanggan — pelanggan adalah tamu.
      */
     public function run(): void
     {
@@ -31,32 +34,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 2. Akun Pelanggan Contoh (Mahasiswa UNG)
-        $pelanggan1 = User::updateOrCreate(
-            ['email' => 'pelanggan1@ayiriz.local'],
-            [
-                'name' => 'Aldi Mahasiswa (Data Contoh)',
-                'password' => Hash::make('Pelanggan123!'),
-                'role' => UserRole::Pelanggan,
-            ]
-        );
-
-        $pelanggan2 = User::updateOrCreate(
-            ['email' => 'pelanggan2@ayiriz.local'],
-            [
-                'name' => 'Siti Nabila (Data Contoh)',
-                'password' => Hash::make('Pelanggan123!'),
-                'role' => UserRole::Pelanggan,
-            ]
-        );
-
-        // 3. Kategori Menu Global (ERD §2.3)
+        // 2. Kategori Menu Global (ERD §2.3)
         $catMakananBerat = Category::updateOrCreate(['nama' => 'Makanan Berat']);
         $catMinuman = Category::updateOrCreate(['nama' => 'Minuman']);
         $catCemilan = Category::updateOrCreate(['nama' => 'Cemilan & Dessert']);
         $catPaket = Category::updateOrCreate(['nama' => 'Paket Anak Kuliahan']);
 
-        // 4. Akun & Data 4 Outlet Contoh di Depan Gerbang Kampus UNG (3 Terverifikasi + 1 Belum Terverifikasi)
+        // 3. Akun & Data 4 Outlet Contoh di Depan Gerbang Kampus UNG (3 Terverifikasi + 1 Belum Terverifikasi)
         $outletsData = [
             [
                 'email' => 'outlet1@ayiriz.local',
@@ -187,11 +171,11 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 5. Pesanan Contoh (8 pesanan: sebagian Diproses, sebagian Selesai dengan royalti 10% terhitung)
+        // 4. Pesanan Contoh (8 pesanan yang sudah dibayar tunai: sebagian Diproses, sebagian Selesai dengan royalti 10% terhitung)
         $sampleOrders = [
             [
                 'kode' => 'AYZ-20261116-0001',
-                'user' => $pelanggan1,
+                'nama_pemesan' => 'Aldi Pratama',
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Selesai,
                 'items' => [
@@ -203,7 +187,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0002',
-                'user' => $pelanggan2,
+                'nama_pemesan' => 'Siti Nabila',
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Selesai,
                 'items' => [
@@ -215,7 +199,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0003',
-                'user' => $pelanggan1,
+                'nama_pemesan' => 'Rizky Ramadhan',
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Diproses,
                 'items' => [
@@ -226,7 +210,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0004',
-                'user' => $pelanggan2,
+                'nama_pemesan' => 'Nadia Putri',
                 'outlet_slug' => 'ayiriz-kopi-roti',
                 'status' => OrderStatus::Selesai,
                 'items' => [
@@ -238,7 +222,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0005',
-                'user' => $pelanggan1,
+                'nama_pemesan' => 'Fajar Hidayat',
                 'outlet_slug' => 'ayiriz-kopi-roti',
                 'status' => OrderStatus::Diproses,
                 'items' => [
@@ -249,7 +233,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0006',
-                'user' => $pelanggan1,
+                'nama_pemesan' => 'Farhan Akbar',
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Selesai,
                 'items' => [
@@ -261,7 +245,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0007',
-                'user' => $pelanggan2,
+                'nama_pemesan' => 'Aulia Rahma',
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Selesai,
                 'items' => [
@@ -273,7 +257,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'kode' => 'AYZ-20261116-0008',
-                'user' => $pelanggan2,
+                'nama_pemesan' => 'Taufik Ismail',
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Diproses,
                 'items' => [
@@ -300,8 +284,8 @@ class DatabaseSeeder extends Seeder
 
                 $itemsPayload[] = [
                     'menu_id' => $menu->id,
-                    'nama_menu_saat_checkout' => $menu->nama,
-                    'harga_saat_checkout' => $menu->harga,
+                    'nama_menu_saat_submit' => $menu->nama,
+                    'harga_saat_submit' => $menu->harga,
                     'jumlah' => $qty,
                     'subtotal' => $subtotal,
                 ];
@@ -314,7 +298,7 @@ class DatabaseSeeder extends Seeder
             $order = Order::updateOrCreate(
                 ['kode' => $orderDef['kode']],
                 [
-                    'user_id' => $orderDef['user']->id,
+                    'nama_pemesan' => $orderDef['nama_pemesan'],
                     'outlet_id' => $outlet->id,
                     'status' => $orderDef['status'],
                     'total' => $total,
@@ -332,6 +316,73 @@ class DatabaseSeeder extends Seeder
             foreach ($itemsPayload as $payload) {
                 OrderItem::create(array_merge($payload, [
                     'order_id' => $order->id,
+                ]));
+            }
+        }
+
+        // 5. Antrean Contoh (2 antrean di daftar tunggu — belum dibayar, belum mengurangi stok, tanpa status)
+        $sampleAntreans = [
+            [
+                'kode' => 'AYZ-20261116-0009',
+                'nama_pemesan' => 'Budi Santoso',
+                'outlet_slug' => 'ayiriz-geprek',
+                'items' => [
+                    ['menu_index' => 0, 'jumlah' => 1], // 15.000
+                    ['menu_index' => 5, 'jumlah' => 1], // 6.000
+                ],
+                'created_at' => now()->subMinutes(10),
+            ],
+            [
+                'kode' => 'AYZ-20261116-0010',
+                'nama_pemesan' => 'Dina Lestari',
+                'outlet_slug' => 'ayiriz-kopi-roti',
+                'items' => [
+                    ['menu_index' => 0, 'jumlah' => 1], // 12.000
+                    ['menu_index' => 2, 'jumlah' => 1], // 10.000
+                ],
+                'created_at' => now()->subMinutes(5),
+            ],
+        ];
+
+        foreach ($sampleAntreans as $antreanDef) {
+            $outlet = $createdOutlets[$antreanDef['outlet_slug']];
+            $menus = $createdMenusByOutlet[$antreanDef['outlet_slug']];
+
+            $total = 0;
+            $itemsPayload = [];
+
+            foreach ($antreanDef['items'] as $itemRow) {
+                /** @var Menu $menu */
+                $menu = $menus[$itemRow['menu_index']];
+                $qty = $itemRow['jumlah'];
+                $subtotal = $menu->harga * $qty;
+                $total += $subtotal;
+
+                $itemsPayload[] = [
+                    'menu_id' => $menu->id,
+                    'nama_menu_saat_submit' => $menu->nama,
+                    'harga_saat_submit' => $menu->harga,
+                    'jumlah' => $qty,
+                    'subtotal' => $subtotal,
+                ];
+            }
+
+            $antrean = Antrean::updateOrCreate(
+                ['kode' => $antreanDef['kode']],
+                [
+                    'outlet_id' => $outlet->id,
+                    'nama_pemesan' => $antreanDef['nama_pemesan'],
+                    'total' => $total,
+                    'is_sample' => true,
+                    'created_at' => $antreanDef['created_at'],
+                    'updated_at' => $antreanDef['created_at'],
+                ]
+            );
+
+            $antrean->items()->delete();
+            foreach ($itemsPayload as $payload) {
+                AntreanItem::create(array_merge($payload, [
+                    'antrean_id' => $antrean->id,
                 ]));
             }
         }

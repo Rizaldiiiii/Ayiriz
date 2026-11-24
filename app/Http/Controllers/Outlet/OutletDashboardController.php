@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Outlet;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Antrean;
 use App\Models\Order;
 use App\Services\RoyaltyService;
 use Illuminate\Http\Request;
@@ -22,7 +23,14 @@ class OutletDashboardController extends Controller
 
         $summary = $this->royaltyService->summarizeOutlet($outlet);
 
-        $pesananDiproses = Order::with(['user', 'items'])
+        $antreans = Antrean::with('items')
+            ->where('outlet_id', $outlet->id)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $pesananDiproses = Order::with('items')
             ->where('outlet_id', $outlet->id)
             ->where('status', OrderStatus::Diproses)
             ->orderByDesc('created_at')
@@ -40,6 +48,7 @@ class OutletDashboardController extends Controller
         return view('outlet.dashboard', [
             'outlet' => $outlet,
             'summary' => $summary,
+            'antreans' => $antreans,
             'pesananDiproses' => $pesananDiproses,
             'menuHabisCount' => $menuHabisCount,
         ]);

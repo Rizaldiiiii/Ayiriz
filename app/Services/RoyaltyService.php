@@ -18,20 +18,22 @@ class RoyaltyService
     }
 
     /**
-     * Ringkasan penjualan dan royalti satu outlet (hanya pesanan Selesai).
+     * Ringkasan penjualan, royalti, pesanan, dan daftar tunggu (antrean) satu outlet (penjualan & royalti hanya dari pesanan Selesai).
      *
-     * @return array{total_penjualan: int, total_royalti: int, jumlah_selesai: int, jumlah_diproses: int}
+     * @return array{total_penjualan: int, total_royalti: int, jumlah_selesai: int, jumlah_diproses: int, jumlah_antrean: int}
      */
     public function summarizeOutlet(Outlet $outlet): array
     {
         $selesaiQuery = $outlet->orders()->where('status', OrderStatus::Selesai);
         $diprosesQuery = $outlet->orders()->where('status', OrderStatus::Diproses);
+        $antreanQuery = $outlet->antreans();
 
         return [
             'total_penjualan' => (int) (clone $selesaiQuery)->sum('total'),
             'total_royalti' => (int) (clone $selesaiQuery)->sum('royalty_nominal'),
             'jumlah_selesai' => (int) (clone $selesaiQuery)->count(),
             'jumlah_diproses' => (int) $diprosesQuery->count(),
+            'jumlah_antrean' => (int) $antreanQuery->count(),
         ];
     }
 }

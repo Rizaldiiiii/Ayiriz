@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('kode')->unique();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('nama_pemesan');
             $table->foreignId('outlet_id')->constrained('outlets')->cascadeOnDelete();
             $table->enum('status', ['diproses', 'selesai'])->default('diproses');
             $table->unsignedInteger('total');
@@ -23,7 +23,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['outlet_id', 'status', 'created_at']);
-            $table->index(['user_id', 'created_at']);
         });
     }
 

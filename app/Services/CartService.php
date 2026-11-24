@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 class CartService
 {
     private const SESSION_KEY = 'ayiriz_cart';
+    private const SUBMITTED_ANTREAN_KEY = 'ayiriz_last_antrean';
 
     /**
      * Ambil isi keranjang dari session beserta objek Outlet dan Menu terkini.
@@ -96,7 +97,7 @@ class CartService
     }
 
     /**
-     * Tambahkan menu ke keranjang satu outlet.
+     * Tambahkan menu ke keranjang satu outlet (tamu tanpa login).
      *
      * @return array{conflict: bool, current_outlet: Outlet|null, new_outlet: Outlet|null}
      */
@@ -224,11 +225,11 @@ class CartService
     }
 
     /**
-     * Format item keranjang untuk dikirim ke OrderService::checkout().
+     * Format item keranjang untuk dikirim ke AntreanService::submit().
      *
      * @return array<int, array{menu_id: int, jumlah: int}>
      */
-    public function getCheckoutPayload(): array
+    public function getSubmitPayload(): array
     {
         $raw = Session::get(self::SESSION_KEY, [
             'outlet_id' => null,
@@ -246,5 +247,23 @@ class CartService
         }
 
         return $payload;
+    }
+
+    /**
+     * Simpan ringkasan antrean yang baru disubmit ke session agar dapat ditampilkan ke pelanggan tamu di /keranjang.
+     *
+     * @param  array<string, mixed>  $snapshot
+     */
+    public function storeLastSubmittedAntrean(array $snapshot): void
+    {
+        Session::put(self::SUBMITTED_ANTREAN_KEY, $snapshot);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getLastSubmittedAntrean(): ?array
+    {
+        return Session::get(self::SUBMITTED_ANTREAN_KEY);
     }
 }

@@ -42,13 +42,11 @@
                     </div>
                 </div>
 
-                @auth
-                    @if (auth()->user()->isPelanggan() && ($cart['total_item'] ?? 0) > 0)
-                        <a href="{{ route('cart.index') }}" class="ayi-btn-primary">
-                            <span>Lihat Keranjang ({{ $cart['total_item'] }} porsi · Rp {{ number_format($cart['total'], 0, ',', '.') }})</span>
-                        </a>
-                    @endif
-                @endauth
+                @if (($cart['total_item'] ?? 0) > 0)
+                    <a href="{{ route('cart.index') }}" class="ayi-btn-primary">
+                        <span>Lihat Keranjang ({{ $cart['total_item'] }} porsi · Rp {{ number_format($cart['total'], 0, ',', '.') }})</span>
+                    </a>
+                @endif
             </div>
 
             {{-- Filter Menu di Outlet Ini --}}

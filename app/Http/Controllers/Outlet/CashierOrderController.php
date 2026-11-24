@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Outlet;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Antrean;
 use App\Models\Order;
+use App\Services\AntreanService;
 use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,7 @@ use Illuminate\View\View;
 class CashierOrderController extends Controller
 {
     public function __construct(
+        private readonly AntreanService $antreanService,
         private readonly OrderService $orderService
     ) {}
 
@@ -23,7 +26,13 @@ class CashierOrderController extends Controller
 
         $statusFilter = $request->query('status');
 
-        $ordersQuery = Order::with(['user', 'items'])
+        $antreans = Antrean::with('items')
+            ->where('outlet_id', $outlet->id)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
+
+        $ordersQuery = Order::with('items')
             ->where('outlet_id', $outlet->id)
             ->orderByDesc('created_at')
             ->orderByDesc('id');
@@ -35,6 +44,7 @@ class CashierOrderController extends Controller
         $orders = $ordersQuery->paginate(12)->withQueryString();
 
         $counts = [
+            'antrean' => $antreans->count(),
             'semua' => Order::where('outlet_id', $outlet->id)->count(),
             'diproses' => Order::where('outlet_id', $outlet->id)->where('status', OrderStatus::Diproses)->count(),
             'selesai' => Order::where('outlet_id', $outlet->id)->where('status', OrderStatus::Selesai)->count(),
@@ -42,10 +52,60 @@ class CashierOrderController extends Controller
 
         return view('outlet.orders-index', [
             'outlet' => $outlet,
+            'antreans' => $antreans,
             'orders' => $orders,
             'statusFilter' => $statusFilter,
             'counts' => $counts,
         ]);
+    }
+
+    public function showAntrean(Request $request, Antrean $antrean): View
+    {
+        $this->authorize('view', $antrean);
+
+        $outlet = $request->user()->outlet;
+        $ownedAntrean = Antrean::with(['outlet', 'items.menu'])
+            ->where('outlet_id', $outlet->id)
+            ->findOrFail($antrean->id);
+
+        return view('outlet.antrean-show', [
+            'outlet' => $outlet,
+            'antrean' => $ownedAntrean,
+        ]);
+    }
+
+    public function confirmPayment(Request $request, Antrean $antrean): RedirectResponse
+    {
+        $this->authorize('confirmPayment', $antrean);
+
+        $outlet = $request->user()->outlet;
+        $ownedAntrean = Antrean::where('outlet_id', $outlet->id)->findOrFail($antrean->id);
+
+        $order = $this->antreanService->confirmCashPayment($ownedAntrean, $request->user());
+
+        return redirect()->route('outlet.orders.show', $order)
+            ->with(
+                'toast_success',
+                "Pembayaran tunai diterima. Antrean {$order->kode} ({$order->nama_pemesan}) kini berstatus Diproses dan stok porsi telah dikurangi."
+            );
+    }
+
+    public function destroyAntrean(Request $request, Antrean $antrean): RedirectResponse
+    {
+        $this->authorize('delete', $antrean);
+
+        $outlet = $request->user()->outlet;
+        $ownedAntrean = Antrean::where('outlet_id', $outlet->id)->findOrFail($antrean->id);
+        $kode = $ownedAntrean->kode;
+        $nama = $ownedAntrean->nama_pemesan;
+
+        $this->antreanService->deleteAntrean($ownedAntrean, $request->user());
+
+        return redirect()->route('outlet.orders.index')
+            ->with(
+                'toast_info',
+                "Antrean {$kode} ({$nama} — pelanggan tidak datang) berhasil dihapus dari daftar tunggu tanpa perubahan stok maupun royalti."
+            );
     }
 
     public function show(Request $request, Order $order): View
@@ -53,7 +113,7 @@ class CashierOrderController extends Controller
         $this->authorize('view', $order);
 
         $outlet = $request->user()->outlet;
-        $ownedOrder = Order::with(['user', 'outlet', 'items'])
+        $ownedOrder = Order::with(['outlet', 'items'])
             ->where('outlet_id', $outlet->id)
             ->findOrFail($order->id);
 
@@ -74,22 +134,5 @@ class CashierOrderController extends Controller
 
         return redirect()->route('outlet.orders.show', $completed)
             ->with('toast_success', 'Pesanan ditandai Selesai');
-    }
-
-    public function destroy(Request $request, Order $order): RedirectResponse
-    {
-        $this->authorize('delete', $order);
-
-        $outlet = $request->user()->outlet;
-        $ownedOrder = Order::where('outlet_id', $outlet->id)->findOrFail($order->id);
-        $kode = $ownedOrder->kode;
-
-        $this->orderService->deleteDiprosesOrder($ownedOrder, $request->user());
-
-        return redirect()->route('outlet.orders.index')
-            ->with(
-                'toast_info',
-                "Pesanan {$kode} (pelanggan tidak datang) berhasil dihapus dan stok porsi menu telah dikembalikan."
-            );
     }
 }

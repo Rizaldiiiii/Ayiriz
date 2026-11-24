@@ -8,7 +8,7 @@ class AddCartItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null && $this->user()->isPelanggan();
+        return true;
     }
 
     public function rules(): array

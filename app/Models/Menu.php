@@ -45,6 +45,11 @@ class Menu extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function antreanItems(): HasMany
+    {
+        return $this->hasMany(AntreanItem::class);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

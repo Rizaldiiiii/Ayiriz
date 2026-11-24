@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
             $table->foreignId('menu_id')->constrained('menus')->cascadeOnDelete();
-            $table->string('nama_menu_saat_checkout');
-            $table->unsignedInteger('harga_saat_checkout');
+            $table->string('nama_menu_saat_submit');
+            $table->unsignedInteger('harga_saat_submit');
             $table->unsignedInteger('jumlah');
             $table->unsignedInteger('subtotal');
 

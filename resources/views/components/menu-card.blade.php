@@ -112,87 +112,63 @@
                 </span>
             </div>
 
-            @auth
-                @if (auth()->user()->isPelanggan())
-                    @if (! $bisaDipesan)
+            {{-- Pelanggan memesan sebagai tamu tanpa login (Model B) --}}
+            @if (! $bisaDipesan)
+                <button
+                    type="button"
+                    disabled
+                    class="inline-flex min-h-[44px] items-center justify-center rounded-full bg-divider px-4 py-2 font-heading text-sm font-bold text-ink-secondary cursor-not-allowed"
+                >
+                    Stok Habis
+                </button>
+            @elseif ($cartQty > 0)
+                {{-- Stepper jumlah (- n +) khas Ayiriz --}}
+                <div class="inline-flex min-h-[44px] items-center rounded-full bg-chili px-1.5 text-white shadow-ayi-xs">
+                    <form action="{{ route('cart.items.update', $menu) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="jumlah" value="{{ $cartQty - 1 }}">
                         <button
-                            type="button"
-                            disabled
-                            class="inline-flex min-h-[44px] items-center justify-center rounded-full bg-divider px-4 py-2 font-heading text-sm font-bold text-ink-secondary cursor-not-allowed"
+                            type="submit"
+                            aria-label="Kurangi jumlah {{ $menu->nama }}"
+                            class="flex h-9 w-9 items-center justify-center rounded-full font-heading text-lg font-bold text-white transition active:scale-[0.97] hover:bg-chili-hover"
                         >
-                            Stok Habis
+                            −
                         </button>
-                    @elseif ($cartQty > 0)
-                        {{-- Stepper jumlah (- n +) khas Ayiriz --}}
-                        <div class="inline-flex min-h-[44px] items-center rounded-full bg-chili px-1.5 text-white shadow-ayi-xs">
-                            <form action="{{ route('cart.items.update', $menu) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="jumlah" value="{{ $cartQty - 1 }}">
-                                <button
-                                    type="submit"
-                                    aria-label="Kurangi jumlah {{ $menu->nama }}"
-                                    class="flex h-9 w-9 items-center justify-center rounded-full font-heading text-lg font-bold text-white transition active:scale-[0.97] hover:bg-chili-hover"
-                                >
-                                    −
-                                </button>
-                            </form>
-                            <span class="min-w-[28px] text-center font-heading text-sm font-bold tabular-nums">
-                                {{ $cartQty }}
-                            </span>
-                            <form action="{{ route('cart.items.store') }}" method="POST" class="inline">
-                                @csrf
-                                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                                <input type="hidden" name="jumlah" value="1">
-                                <button
-                                    type="submit"
-                                    aria-label="Tambah jumlah {{ $menu->nama }}"
-                                    @if ($cartQty >= $menu->stok_porsi) disabled @endif
-                                    class="flex h-9 w-9 items-center justify-center rounded-full font-heading text-lg font-bold text-white transition active:scale-[0.97] hover:bg-chili-hover disabled:opacity-40"
-                                >
-                                    +
-                                </button>
-                            </form>
-                        </div>
-                    @else
-                        <form action="{{ route('cart.items.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                            <input type="hidden" name="jumlah" value="1">
-                            <button
-                                type="submit"
-                                class="ayi-btn-primary min-h-[44px] px-4 py-2 text-sm"
-                            >
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14" />
-                                </svg>
-                                <span>Tambah</span>
-                            </button>
-                        </form>
-                    @endif
-                @else
-                    <a href="{{ route('catalog.menu', $menu) }}" class="ayi-btn-secondary min-h-[44px] px-4 py-2 text-sm">
-                        Detail
-                    </a>
-                @endif
+                    </form>
+                    <span class="min-w-[28px] text-center font-heading text-sm font-bold tabular-nums">
+                        {{ $cartQty }}
+                    </span>
+                    <form action="{{ route('cart.items.store') }}" method="POST" class="inline">
+                        @csrf
+                        <input type="hidden" name="menu_id" value="{{ $menu->id }}">
+                        <input type="hidden" name="jumlah" value="1">
+                        <button
+                            type="submit"
+                            aria-label="Tambah jumlah {{ $menu->nama }}"
+                            @if ($cartQty >= $menu->stok_porsi) disabled @endif
+                            class="flex h-9 w-9 items-center justify-center rounded-full font-heading text-lg font-bold text-white transition active:scale-[0.97] hover:bg-chili-hover disabled:opacity-40"
+                        >
+                            +
+                        </button>
+                    </form>
+                </div>
             @else
-                @if ($bisaDipesan)
-                    <a
-                        href="{{ route('login') }}"
+                <form action="{{ route('cart.items.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="menu_id" value="{{ $menu->id }}">
+                    <input type="hidden" name="jumlah" value="1">
+                    <button
+                        type="submit"
                         class="ayi-btn-primary min-h-[44px] px-4 py-2 text-sm"
-                        title="Login pelanggan untuk memesan"
                     >
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14" />
                         </svg>
                         <span>Tambah</span>
-                    </a>
-                @else
-                    <span class="inline-flex min-h-[44px] items-center justify-center rounded-full bg-divider px-4 py-2 font-heading text-sm font-bold text-ink-secondary">
-                        Stok Habis
-                    </span>
-                @endif
-            @endauth
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 </article>
