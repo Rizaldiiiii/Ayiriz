@@ -5,7 +5,7 @@
 **Pendamping:** `PRD-Ayiriz.md` (apa yang dibangun) dan
 `blueprint-Ayiriz.md` (bagaimana membangunnya)
 **Database:** MySQL, Laragon lokal, timezone Asia/Makassar
-**Status:** Draf v1.0 — fondasi dikunci 2026-11-16
+**Status:** Draf v1.1 — fondasi dikunci 2026-11-16; revisi Model B 2026-11-24 (pelanggan tamu, antrean, bayar tunai)
 
 ---
 
@@ -14,10 +14,9 @@
 ```mermaid
 erDiagram
     users ||--o{ outlets : "mengelola (outlet)"
-    users ||--o{ orders : "memesan (pelanggan)"
-    users ||--o{ reactions : "memberi"
 
     outlets ||--o{ menus : "punya"
+    outlets ||--o{ antrean : "menerima"
     outlets ||--o{ orders : "menerima"
     outlets ||--o{ ingredients : "punya"
     outlets ||--o{ royalty_histories : "punya"
@@ -26,8 +25,11 @@ erDiagram
     categories ||--o{ menus : "mengelompokkan"
 
     menus ||--o{ order_items : "dipesan"
+    menus ||--o{ antrean_items : "dipesan"
     menus ||--o{ menu_ingredients : "resep"
     menus ||--o{ reactions : "mendapat"
+
+    antrean ||--o{ antrean_items : "berisi"
 
     orders ||--o{ order_items : "berisi"
     orders ||--o{ reactions : "dinilai"
@@ -40,7 +42,7 @@ erDiagram
         string name
         string email UK
         string password
-        enum role "pusat | outlet | pelanggan"
+        enum role "pusat | outlet"
         datetime created_at
         datetime updated_at
     }
@@ -84,7 +86,7 @@ erDiagram
     orders {
         bigint id PK
         string kode UK "misal AYZ-20261116-0001"
-        bigint user_id FK "pelanggan"
+        string nama_pemesan "wajib"
         bigint outlet_id FK
         enum status "diproses | selesai"
         integer total
@@ -100,8 +102,28 @@ erDiagram
         bigint id PK
         bigint order_id FK
         bigint menu_id FK
-        string nama_menu_saat_checkout
-        integer harga_saat_checkout
+        string nama_menu_saat_submit
+        integer harga_saat_submit
+        integer jumlah
+        integer subtotal
+    }
+
+    antrean {
+        bigint id PK
+        string kode UK "misal AYZ-20261116-0001"
+        bigint outlet_id FK
+        string nama_pemesan "wajib"
+        integer total
+        datetime created_at
+        datetime updated_at
+    }
+
+    antrean_items {
+        bigint id PK
+        bigint antrean_id FK
+        bigint menu_id FK
+        string nama_menu_saat_submit
+        integer harga_saat_submit
         integer jumlah
         integer subtotal
     }
@@ -135,7 +157,6 @@ erDiagram
 
     reactions {
         bigint id PK
-        bigint user_id FK "pelanggan"
         bigint order_id FK
         bigint menu_id FK
         enum emote "enak | pedas | manis"
@@ -175,7 +196,7 @@ erDiagram
 
 ### 2.1 `users` — Akun
 
-- `role`: `pusat | outlet | pelanggan`. Satu user satu role.
+- `role`: `pusat | outlet`. Satu user satu role. Tidak ada user pelanggan — pelanggan adalah tamu tanpa akun.
 - Satu user Outlet mengelola satu outlet (`outlets.user_id`).
   Kalau nanti satu pemilik punya dua kantin, tambah baris outlet
   dengan user berbeda — jangan ubah relasi ini di MVP.
@@ -197,21 +218,28 @@ erDiagram
   Cemilan/Dessert), bukan per outlet, supaya filter katalog konsisten.
 - `menus.outlet_id` + `menus.category_id`. Harga dalam rupiah
   (integer, tanpa desimal).
-- `stok_porsi`: jumlah porsi yang bisa dipesan. Berkurang saat
-  pesanan dibuat. `tersedia = false` atau `stok_porsi = 0` berarti
-  tidak bisa dipesan.
+- `stok_porsi`: jumlah porsi yang bisa dipesan. Berkurang saat kasir
+  mengonfirmasi pembayaran (antrean menjadi pesanan Diproses).
+  Antrean tidak mengurangi stok. `tersedia = false` atau
+  `stok_porsi = 0` berarti tidak bisa masuk antrean.
 - `foto` boleh kosong; tampilkan placeholder kalau kosong.
 
 ### 2.4 `orders` dan `order_items` — Pesanan
 
-- `kode` unik, dibuat server saat checkout (misal
-  `AYZ-20261116-0001`).
+- `kode` unik, dibuat server saat antrean disubmit (misal
+  `AYZ-20261116-0001`); pesanan yang lahir dari antrean itu memakai
+  kode yang sama.
+- `nama_pemesan` wajib — nama yang ditulis pelanggan tamu saat submit
+  keranjang. Tidak ada `user_id` pelanggan; pesanan tidak terikat akun.
 - `status` hanya `diproses | selesai` — enum di database, bukan
-  string bebas. Transisi hanya Diproses → Selesai.
+  string bebas. Transisi hanya Diproses → Selesai. Pesanan dibuat
+  langsung berstatus `diproses` saat kasir mengonfirmasi pembayaran.
+  Tidak ada status sebelum bayar — sebelum bayar hanya ada antrean
+  (lihat §2.8).
 - Satu pesanan hanya satu `outlet_id`. Ini ditegakkan di service,
   bukan hanya di keranjang.
-- `order_items` mengunci `nama_menu_saat_checkout` dan
-  `harga_saat_checkout` — harga menu boleh berubah sesudahnya tanpa
+- `order_items` mengunci `nama_menu_saat_submit` dan
+  `harga_saat_submit` — harga menu boleh berubah sesudahnya tanpa
   mengubah pesanan lama.
 - `royalty_percent_saat_selesai` dan `royalty_nominal` diisi saat
   pesanan menjadi Selesai (persen royalti outlet saat itu × total).
@@ -241,12 +269,13 @@ erDiagram
 - `emote`: `enak | pedas | manis` — pemetaan tampilannya:
   `enak = 😋 Enak`, `pedas = 🥵 Pedas`,
   `manis = 🫠 Manis / menyejukkan`.
-- **Unique key: `(user_id, order_id, menu_id)`.** Satu pelanggan
-  hanya punya satu reaksi per menu per pesanan. Reaksi kedua adalah
-  UPDATE, bukan INSERT baru.
+- **Unique key: `(order_id, menu_id)`.** Satu pesanan hanya punya
+  satu reaksi per menu. Reaksi kedua adalah UPDATE, bukan INSERT baru.
 - Aturan service (bukan hanya database): reaksi hanya boleh dibuat
-  kalau `orders.status = selesai` dan `orders.user_id` sama dengan
-  pelanggan yang bereaksi, dan `menu_id` memang ada di pesanan itu.
+  kalau pesanan sudah dibayar — yaitu pesanan sudah ada dengan status
+  `diproses` atau `selesai` — dan `menu_id` memang ada di pesanan
+  itu. Tidak ada pengecekan akun, karena pelanggan adalah tamu;
+  akses halaman reaksi lewat QR pesanan atau kode pesanan.
 - **Tidak ada kolom skor, rata-rata, atau ranking.** Hitungan yang
   tampil dihitung langsung: `SELECT emote, COUNT(*) ... GROUP BY
   emote`. Jangan tambahkan kolom agregat ke tabel ini.
@@ -263,17 +292,38 @@ erDiagram
 - Keputusan `naik` di audit harus diikuti baris baru di
   `royalty_histories`; keputusan `tetap` tidak perlu baris baru.
 
+### 2.8 `antrean` dan `antrean_items` — Daftar tunggu
+
+- Antrean adalah keranjang yang sudah disubmit pelanggan tamu, tercatat
+  di database agar kasir bisa melihat nama, isi, dan totalnya — tetapi
+  **bukan pesanan**: tidak punya kolom status, tidak mengurangi stok
+  porsi maupun stok bahan, dan tidak menghitung royalti.
+- `kode` dibuat server saat submit; pesanan yang lahir dari antrean
+  itu memakai kode yang sama, supaya pelanggan cukup mengingat satu
+  kode dari submit sampai ambil.
+- `antrean_items` mengunci `nama_menu_saat_submit` dan
+  `harga_saat_submit` — harga dikunci saat submit, bukan saat bayar.
+- Saat kasir mengonfirmasi pembayaran tunai: sistem membuat `orders`
+  + `order_items` dari antrean itu (menyalin nama pemesan, kode,
+  total, dan harga yang sudah dikunci), mengurangi `stok_porsi`
+  menu, lalu menghapus antrean beserta itemnya — semua dalam satu
+  transaksi database. Kalau stok porsi habis di antara submit dan
+  bayar, konfirmasi ditolak dan antrean tetap ada.
+- Outlet boleh menghapus antrean yang tidak datang; penghapusan itu
+  tanpa efek stok maupun royalti.
+
 ---
 
 ## 3. Indeks yang Perlu Ada
 
 - `orders (outlet_id, status, created_at)` — daftar pesanan outlet
   dan laporan.
-- `orders (user_id, created_at)` — riwayat pesanan pelanggan.
+- `antrean (outlet_id, created_at)` — daftar tunggu outlet.
+- `antrean_items (antrean_id)` dan `(menu_id)`.
 - `order_items (order_id)` dan `(menu_id)`.
 - `menus (outlet_id, tersedia)` — katalog per outlet.
 - `reactions (menu_id, emote)` — hitungan reaksi per menu.
-- `reactions` unique `(user_id, order_id, menu_id)`.
+- `reactions` unique `(order_id, menu_id)`.
 - `royalty_audits` unique `(outlet_id, semester)`.
 - `stock_movements (ingredient_id, created_at)`.
 
@@ -285,7 +335,9 @@ erDiagram
   "Ayiriz Es & Dessert" — nama contoh, bukan UMKM sungguhan.
 - Tiap outlet: 5–8 menu, 2–3 bahan, 1–2 resep sederhana.
 - 8–12 pesanan contoh: sebagian Diproses, sebagian Selesai (dengan
-  royalti terhitung).
+  royalti terhitung), masing-masing dengan nama pemesan.
+- 1–2 antrean contoh (belum dibayar) supaya daftar tunggu terlihat
+  di demo.
 - Reaksi contoh tersebar di ketiga emote, supaya hitungan
   `😋 n · 🥵 n · 🫠 n` terlihat di demo — tanpa ada outlet yang
   dibuat "menang".
