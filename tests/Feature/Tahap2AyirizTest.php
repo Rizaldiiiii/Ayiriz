@@ -389,3 +389,69 @@ test('KF-09: laporan outlet menampilkan penjualan Selesai, menu terlaris, stok m
         ->assertDontSee('Bahan Menipis Kantin B')
         ->assertDontSee('Rp 75.000');
 });
+
+test('kf-07 qr reaksi di halaman kasir merender svg qr sungguhan yang berbeda per kode pesanan', function () {
+    $outletUser = User::factory()->outlet()->create();
+    $outlet = Outlet::create([
+        'user_id' => $outletUser->id,
+        'nama' => 'Outlet QR Kasir',
+        'slug' => 'outlet-qr-kasir',
+        'pemilik' => 'Pemilik QR',
+        'no_hp' => '0812345000',
+        'alamat' => 'Depan UNG QR',
+        'jam_buka' => '08:00-17:00',
+        'status' => OutletStatus::Terverifikasi,
+        'royalty_percent' => 10.00,
+    ]);
+    $cat = Category::create(['nama' => 'Makanan QR', 'slug' => 'makanan-qr']);
+    $menu = Menu::create([
+        'outlet_id' => $outlet->id,
+        'category_id' => $cat->id,
+        'nama' => 'Ayam Geprek QR',
+        'harga' => 18000,
+        'stok_porsi' => 15,
+        'tersedia' => true,
+    ]);
+
+    $antreanService = app(AntreanService::class);
+
+    $antrean1 = $antreanService->submit('Pemesan QR Satu', [['menu_id' => $menu->id, 'jumlah' => 1]]);
+    $order1 = $antreanService->confirmCashPayment($antrean1, $outletUser);
+
+    $antrean2 = $antreanService->submit('Pemesan QR Dua', [['menu_id' => $menu->id, 'jumlah' => 1]]);
+    $order2 = $antreanService->confirmCashPayment($antrean2, $outletUser);
+
+    expect($order1->kode)->not->toBe($order2->kode);
+
+    $reaksiUrl1 = route('catalog.reaksi', $order1->kode);
+    $reaksiUrl2 = route('catalog.reaksi', $order2->kode);
+
+    $expectedQr1 = (string) \SimpleSoftwareIO\QrCode\Facades\QrCode::size(112)->margin(1)->generate($reaksiUrl1);
+    $expectedQr2 = (string) \SimpleSoftwareIO\QrCode\Facades\QrCode::size(112)->margin(1)->generate($reaksiUrl2);
+
+    // Pastikan SVG QR untuk dua pesanan berbeda tidak identik
+    expect($expectedQr1)->toContain('<svg')
+        ->and($expectedQr2)->toContain('<svg')
+        ->and($expectedQr1)->not->toBe($expectedQr2);
+
+    // (a) & (b) Halaman kasir masing-masing pesanan memuat SVG QR sungguhan sesuai URL reaksi dan tetap menampilkan tautan reaksi
+    $html1 = $this->actingAs($outletUser)
+        ->get(route('outlet.orders.show', $order1))
+        ->assertOk()
+        ->assertSee($reaksiUrl1, false)
+        ->assertSee($order1->kode)
+        ->getContent();
+
+    $html2 = $this->actingAs($outletUser)
+        ->get(route('outlet.orders.show', $order2))
+        ->assertOk()
+        ->assertSee($reaksiUrl2, false)
+        ->assertSee($order2->kode)
+        ->getContent();
+
+    expect($html1)->toContain($expectedQr1)
+        ->and($html1)->not->toContain($expectedQr2)
+        ->and($html2)->toContain($expectedQr2)
+        ->and($html2)->not->toContain($expectedQr1);
+});
+

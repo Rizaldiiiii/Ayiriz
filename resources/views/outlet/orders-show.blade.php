@@ -156,19 +156,14 @@
 
                     <a
                         href="{{ $reaksiUrl }}"
-                        class="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-[12px] border-2 border-navy bg-surface p-2 text-center shadow-ayi-xs hover:border-chili transition"
+                        class="flex w-36 shrink-0 flex-col items-center justify-center rounded-[12px] border-2 border-navy bg-surface p-2.5 text-center shadow-ayi-xs hover:border-chili transition"
                         title="Buka halaman reaksi pesanan {{ $order->kode }}"
+                        data-testid="qr-reaksi-box"
                     >
-                        <svg class="h-16 w-16 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                            <rect x="3" y="3" width="7" height="7" rx="1" />
-                            <rect x="14" y="3" width="7" height="7" rx="1" />
-                            <rect x="3" y="14" width="7" height="7" rx="1" />
-                            <rect x="5" y="5" width="3" height="3" fill="currentColor" />
-                            <rect x="16" y="5" width="3" height="3" fill="currentColor" />
-                            <rect x="5" y="16" width="3" height="3" fill="currentColor" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 14h3v3h-3zm4 4h3v3h-3zm0-4h3m-7 7h3" />
-                        </svg>
-                        <span class="mt-1 font-heading text-[10px] font-bold text-chili">{{ $order->kode }}</span>
+                        <div class="flex items-center justify-center overflow-hidden rounded-[6px] bg-white p-1">
+                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(112)->margin(1)->generate($reaksiUrl) !!}
+                        </div>
+                        <span class="mt-1.5 font-heading text-[11px] font-bold text-chili">{{ $order->kode }}</span>
                     </a>
                 </div>
             </div>
