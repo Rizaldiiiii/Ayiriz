@@ -65,9 +65,16 @@
             <nav class="flex items-center gap-2 sm:gap-3" aria-label="Navigasi utama">
                 <a
                     href="{{ route('catalog.index') }}"
-                    class="hidden rounded-full px-3.5 py-2 font-heading text-sm font-bold transition sm:inline-flex {{ request()->routeIs('catalog.*') ? 'bg-tint-chili text-chili' : 'text-ink-secondary hover:text-chili' }}"
+                    class="hidden rounded-full px-3.5 py-2 font-heading text-sm font-bold transition sm:inline-flex {{ request()->routeIs('catalog.index') || request()->routeIs('catalog.outlet') || request()->routeIs('catalog.menu') ? 'bg-tint-chili text-chili' : 'text-ink-secondary hover:text-chili' }}"
                 >
                     Katalog
+                </a>
+
+                <a
+                    href="{{ route('catalog.reaksi.lookup') }}"
+                    class="hidden rounded-full px-3.5 py-2 font-heading text-sm font-bold transition sm:inline-flex {{ request()->routeIs('catalog.reaksi*') ? 'bg-tint-chili text-chili' : 'text-ink-secondary hover:text-chili' }}"
+                >
+                    Beri Reaksi
                 </a>
 
                 {{-- Keranjang Tamu (Tanpa Login — KF-04 Model B) --}}

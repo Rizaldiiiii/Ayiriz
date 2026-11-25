@@ -87,6 +87,31 @@
         </div>
     @endif
 
+    {{-- Peringatan Stok Bahan Baku Menipis (KF-06) --}}
+    @if (isset($stokMenipis) && $stokMenipis->count() > 0)
+        <div class="mt-5 rounded-[12px] border border-border-strong bg-warning-bg p-4 text-sm text-warning" role="alert">
+            <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div class="flex items-start gap-2.5">
+                    <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-sunny" aria-hidden="true"></span>
+                    <div>
+                        <p class="font-heading text-base font-bold text-warning">
+                            Peringatan Stok Bahan Baku Menipis ({{ $stokMenipis->count() }} Bahan)
+                        </p>
+                        <p class="mt-0.5 text-xs text-ink-secondary">
+                            Bahan berikut berada pada atau di bawah batas minimum:
+                            @foreach ($stokMenipis as $ing)
+                                <strong class="text-ink">{{ $ing->nama }} ({{ $ing->formattedStok() }} / min {{ $ing->formattedBatasMinimum() }})</strong>@if (! $loop->last), @endif
+                            @endforeach
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ route('outlet.stok') }}" class="ayi-btn-secondary shrink-0 min-h-[38px] px-4 py-1.5 text-xs">
+                    Catat Stok Masuk →
+                </a>
+            </div>
+        </div>
+    @endif
+
     {{-- Bagian 1: Daftar Tunggu (Antrean Belum Dibayar) --}}
     <div class="mt-8">
         <div class="flex items-center justify-between gap-2">

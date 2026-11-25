@@ -116,27 +116,26 @@ test('KF-01: pusat dapat mendaftarkan outlet baru (belum terverifikasi, royalti 
     $this->get('/outlet/' . $outlet->slug)->assertNotFound();
 });
 
-test('Stub Tahap 2 & Tahap 3: halaman KF-06, KF-07, KF-08, KF-09, KF-10 menampilkan informasi belum tersedia di tahap ini', function () {
+test('Stub Tahap 3 & Halaman Tahap 2: halaman KF-08 dan KF-10 tetap menampilkan stub Tahap 3, sedangkan KF-06, KF-07, KF-09 sudah aktif di Tahap 2', function () {
     $this->seed(DatabaseSeeder::class);
 
     $pusat = User::where('email', 'pusat@ayiriz.local')->firstOrFail();
     $outletUser = User::where('email', 'outlet1@ayiriz.local')->firstOrFail();
 
+    // KF-06, KF-07, KF-09 aktif di Tahap 2
     $this->actingAs($outletUser)->get(route('outlet.stok'))
         ->assertOk()
-        ->assertSee('KF-06')
-        ->assertSee('Belum Tersedia di Tahap Ini');
+        ->assertSee('MANAJEMEN STOK BAHAN BAKU & RESEP (KF-06)', false);
 
     $this->get(route('catalog.reaksi', 'AYZ-20261116-0001'))
         ->assertOk()
-        ->assertSee('KF-07')
-        ->assertSee('Belum Tersedia di Tahap Ini');
+        ->assertSee('KF-07');
 
     $this->actingAs($outletUser)->get(route('outlet.laporan'))
         ->assertOk()
-        ->assertSee('KF-09')
-        ->assertSee('Belum Tersedia di Tahap Ini');
+        ->assertSee('KF-09');
 
+    // KF-08 dan KF-10 tetap stub Tahap 3
     $this->actingAs($pusat)->get(route('pusat.laporan'))
         ->assertOk()
         ->assertSee('KF-08')

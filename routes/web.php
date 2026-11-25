@@ -6,6 +6,9 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\Outlet\CashierOrderController;
 use App\Http\Controllers\Outlet\MenuManagementController;
 use App\Http\Controllers\Outlet\OutletDashboardController;
+use App\Http\Controllers\Outlet\OutletReportController;
+use App\Http\Controllers\Outlet\StockManagementController;
+use App\Http\Controllers\PublicReactionController;
 use App\Http\Controllers\Pusat\OutletManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +28,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 /*
 |--------------------------------------------------------------------------
-| Panel Admin Outlet & Kasir (KF-02, KF-05 + Stub Tahap 2)
+| Panel Admin Outlet & Kasir (KF-02, KF-05, KF-06, KF-09)
 | Didefinisikan sebelum /outlet/{slug} agar rute statis tidak tertangkap slug
 |--------------------------------------------------------------------------
 */
@@ -52,9 +55,16 @@ Route::prefix('outlet')
         Route::get('/pesanan/{order}', [CashierOrderController::class, 'show'])->name('orders.show');
         Route::patch('/pesanan/{order}/selesai', [CashierOrderController::class, 'complete'])->name('orders.complete');
 
-        // Stub Tahap 2 (KF-06 Stok, KF-09 Laporan Outlet)
-        Route::get('/stok', [OutletDashboardController::class, 'stubStok'])->name('stok');
-        Route::get('/laporan', [OutletDashboardController::class, 'stubLaporan'])->name('laporan');
+        // KF-06 Manajemen Stok Bahan Baku & Resep
+        Route::get('/stok', [StockManagementController::class, 'index'])->name('stok');
+        Route::post('/stok/bahan', [StockManagementController::class, 'storeIngredient'])->name('stok.ingredients.store');
+        Route::put('/stok/bahan/{ingredient}', [StockManagementController::class, 'updateIngredient'])->name('stok.ingredients.update');
+        Route::delete('/stok/bahan/{ingredient}', [StockManagementController::class, 'destroyIngredient'])->name('stok.ingredients.destroy');
+        Route::post('/stok/bahan/{ingredient}/mutasi', [StockManagementController::class, 'storeMovement'])->name('stok.movements.store');
+        Route::put('/stok/resep/{menu}', [StockManagementController::class, 'updateRecipe'])->name('stok.recipes.update');
+
+        // KF-09 Laporan Outlet
+        Route::get('/laporan', [OutletReportController::class, 'index'])->name('laporan');
     });
 
 /*
@@ -95,7 +105,7 @@ Route::post('/keranjang/submit', [CartController::class, 'submit'])->name('cart.
 
 /*
 |--------------------------------------------------------------------------
-| Katalog Publik, Pencarian, dan Filter (KF-03 — Tanpa Login) + Stub Reaksi (KF-07)
+| Katalog Publik, Pencarian, dan Filter (KF-03) + Reaksi Emote Pelanggan (KF-07)
 |--------------------------------------------------------------------------
 */
 Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
@@ -103,4 +113,7 @@ Route::get('/outlet/{slug}', [CatalogController::class, 'showOutlet'])
     ->where('slug', '^(?!dashboard$|menu$|pesanan$|antrean$|stok$|laporan$)[a-zA-Z0-9\-]+$')
     ->name('catalog.outlet');
 Route::get('/menu/{menu}', [CatalogController::class, 'showMenu'])->name('catalog.menu');
-Route::get('/reaksi/{kode}', [CatalogController::class, 'stubReaksi'])->name('catalog.reaksi');
+
+Route::get('/reaksi', [PublicReactionController::class, 'lookup'])->name('catalog.reaksi.lookup');
+Route::get('/reaksi/{kode}', [PublicReactionController::class, 'show'])->name('catalog.reaksi');
+Route::post('/reaksi/{kode}', [PublicReactionController::class, 'store'])->name('catalog.reaksi.store');

@@ -90,16 +90,19 @@
                 </p>
             @endif
 
-            {{-- Hitungan reaksi per menu (tanpa skor total/ranking, stub Tahap 2) --}}
+            {{-- Hitungan reaksi per menu (KF-07: tanpa skor total/rata-rata/ranking) --}}
+            @php
+                $rc = $menu->reactionCounts();
+            @endphp
             <div class="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-ink-secondary" aria-label="Kesan reaksi pelanggan">
                 <span class="inline-flex items-center gap-1 rounded-full bg-tint-chili px-2.5 py-0.5 font-medium text-ink" title="Enak">
-                    <span aria-hidden="true">😋</span> 0
+                    <span aria-hidden="true">😋</span> <span class="tabular-nums">{{ $rc['enak'] }}</span>
                 </span>
                 <span class="inline-flex items-center gap-1 rounded-full bg-tint-tang px-2.5 py-0.5 font-medium text-ink" title="Pedas">
-                    <span aria-hidden="true">🥵</span> 0
+                    <span aria-hidden="true">🥵</span> <span class="tabular-nums">{{ $rc['pedas'] }}</span>
                 </span>
                 <span class="inline-flex items-center gap-1 rounded-full bg-tint-sunny px-2.5 py-0.5 font-medium text-ink" title="Manis / menyejukkan">
-                    <span aria-hidden="true">🫠</span> 0
+                    <span aria-hidden="true">🫠</span> <span class="tabular-nums">{{ $rc['manis'] }}</span>
                 </span>
             </div>
         </div>

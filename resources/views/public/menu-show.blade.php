@@ -81,6 +81,9 @@
                     </p>
 
                     {{-- Reaksi Emote (KF-07 — arti emote tertulis di samping pilihan, bukan hanya tooltip) --}}
+                    @php
+                        $rc = $menu->reactionCounts();
+                    @endphp
                     <div class="mt-6 rounded-[12px] border border-border-ayi bg-surface-cream p-4">
                         <p class="font-heading text-xs font-bold uppercase tracking-wider text-ink-secondary">
                             Kesan Pelanggan terhadap Menu Ini (Tanpa Skor / Ranking):
@@ -88,19 +91,22 @@
                         <div class="mt-2.5 flex flex-wrap gap-2 text-xs font-semibold text-ink">
                             <span class="inline-flex items-center gap-1.5 rounded-full bg-tint-chili px-3 py-1">
                                 <span aria-hidden="true">😋</span>
-                                <span>Enak: <strong>0</strong></span>
+                                <span>Enak: <strong class="tabular-nums">{{ $rc['enak'] }}</strong></span>
                             </span>
                             <span class="inline-flex items-center gap-1.5 rounded-full bg-tint-tang px-3 py-1">
                                 <span aria-hidden="true">🥵</span>
-                                <span>Pedas: <strong>0</strong></span>
+                                <span>Pedas: <strong class="tabular-nums">{{ $rc['pedas'] }}</strong></span>
                             </span>
                             <span class="inline-flex items-center gap-1.5 rounded-full bg-tint-sunny px-3 py-1">
                                 <span aria-hidden="true">🫠</span>
-                                <span>Manis / menyejukkan: <strong>0</strong></span>
+                                <span>Manis / menyejukkan: <strong class="tabular-nums">{{ $rc['manis'] }}</strong></span>
                             </span>
                         </div>
-                        <p class="mt-2 text-[11px] text-ink-muted">
-                            Catatan: Pemberian reaksi emote lewat QR kasir atau kode pesanan (KF-07) dijadwalkan pada Tahap 2.
+                        <p class="mt-2 text-[11px] text-ink-secondary">
+                            Sudah memesan dan membayar di kasir?
+                            <a href="{{ route('catalog.reaksi.lookup') }}" class="font-bold text-chili underline hover:text-chili-hover">
+                                Beri Reaksi dengan Kode Pesanan →
+                            </a>
                         </p>
                     </div>
 

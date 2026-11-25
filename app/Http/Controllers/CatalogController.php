@@ -33,6 +33,11 @@ class CatalogController extends Controller
         $categories = Category::orderBy('nama')->get();
 
         $menusQuery = Menu::with(['outlet', 'category'])
+            ->withCount([
+                'reactions as enak_count' => fn (Builder $rq) => $rq->where('emote', 'enak'),
+                'reactions as pedas_count' => fn (Builder $rq) => $rq->where('emote', 'pedas'),
+                'reactions as manis_count' => fn (Builder $rq) => $rq->where('emote', 'manis'),
+            ])
             ->katalogPublik();
 
         if ($q !== '') {
@@ -94,6 +99,11 @@ class CatalogController extends Controller
 
         $menusQuery = $outlet->menus()
             ->with('category')
+            ->withCount([
+                'reactions as enak_count' => fn (Builder $rq) => $rq->where('emote', 'enak'),
+                'reactions as pedas_count' => fn (Builder $rq) => $rq->where('emote', 'pedas'),
+                'reactions as manis_count' => fn (Builder $rq) => $rq->where('emote', 'manis'),
+            ])
             ->where('tersedia', true);
 
         if ($q !== '') {
@@ -125,12 +135,22 @@ class CatalogController extends Controller
     public function showMenu(Menu $menu): View
     {
         $menu->load(['outlet', 'category']);
+        $menu->loadCount([
+            'reactions as enak_count' => fn (Builder $rq) => $rq->where('emote', 'enak'),
+            'reactions as pedas_count' => fn (Builder $rq) => $rq->where('emote', 'pedas'),
+            'reactions as manis_count' => fn (Builder $rq) => $rq->where('emote', 'manis'),
+        ]);
 
         if (! $menu->tersedia || ! $menu->outlet || $menu->outlet->status !== OutletStatus::Terverifikasi) {
             abort(404, 'Menu tidak tersedia di katalog publik.');
         }
 
         $relatedMenus = Menu::with('category')
+            ->withCount([
+                'reactions as enak_count' => fn (Builder $rq) => $rq->where('emote', 'enak'),
+                'reactions as pedas_count' => fn (Builder $rq) => $rq->where('emote', 'pedas'),
+                'reactions as manis_count' => fn (Builder $rq) => $rq->where('emote', 'manis'),
+            ])
             ->where('outlet_id', $menu->outlet_id)
             ->where('tersedia', true)
             ->where('id', '!=', $menu->id)
@@ -143,13 +163,6 @@ class CatalogController extends Controller
             'menu' => $menu,
             'relatedMenus' => $relatedMenus,
             'cart' => $cart,
-        ]);
-    }
-
-    public function stubReaksi(string $kode): View
-    {
-        return view('public.reaksi-stub', [
-            'kode' => $kode,
         ]);
     }
 }

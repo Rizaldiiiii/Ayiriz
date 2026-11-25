@@ -11,18 +11,20 @@ use Illuminate\Validation\ValidationException;
 class OrderService
 {
     public function __construct(
-        private readonly RoyaltyService $royaltyService
+        private readonly RoyaltyService $royaltyService,
+        private readonly StockService $stockService
     ) {}
 
     /**
      * Tandai pesanan yang sudah dibayar dan dimasak menjadi Selesai saat diambil pelanggan (Diproses -> Selesai, satu arah).
-     * Mencatat royalti 10% (atau persen royalti outlet saat itu) dari total pesanan.
+     * Mencatat royalti 10% (atau persen royalti outlet saat itu) dari total pesanan,
+     * serta mengurangi stok bahan baku otomatis untuk menu yang memiliki resep (KF-06).
      */
     public function completeOrder(Order $order, User $actor): Order
     {
         return DB::transaction(function () use ($order, $actor): Order {
             /** @var Order $lockedOrder */
-            $lockedOrder = Order::with(['outlet', 'items'])
+            $lockedOrder = Order::with(['outlet', 'items.menu.menuIngredients'])
                 ->lockForUpdate()
                 ->findOrFail($order->id);
 
@@ -46,6 +48,9 @@ class OrderService
                 'metode_bayar' => 'bayar_di_kasir',
                 'selesai_at' => now(),
             ]);
+
+            // KF-06: Kurangi stok bahan baku otomatis hanya untuk menu yang memiliki resep saat pesanan Selesai
+            $this->stockService->deductIngredientsForCompletedOrder($lockedOrder);
 
             return $lockedOrder->fresh(['outlet', 'items']);
         });

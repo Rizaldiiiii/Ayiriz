@@ -133,7 +133,7 @@
                 </div>
             </div>
 
-            {{-- QR Reaksi Pesanan di Layar Kasir (KF-05 & KF-07 — Stub Tahap 2) --}}
+            {{-- QR Reaksi Pesanan di Layar Kasir (KF-05 & KF-07 Aktif) --}}
             <div class="mt-6 rounded-[12px] border border-border-ayi bg-surface-cream p-5">
                 <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
@@ -141,27 +141,35 @@
                             <h3 class="font-heading text-lg font-bold text-navy">
                                 QR Reaksi Emote Pelanggan (KF-07)
                             </h3>
-                            <span class="rounded-full bg-divider px-2.5 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">
-                                Stub Tahap 2
+                            <span class="ayi-badge-selesai">
+                                <span class="h-2 w-2 rounded-full bg-leaf" aria-hidden="true"></span>
+                                <span>Aktif (Sudah Dibayar)</span>
                             </span>
                         </div>
                         <p class="mt-1 text-xs leading-relaxed text-ink-secondary">
-                            Karena pesanan <strong>{{ $order->kode }}</strong> sudah dibayar tunai, pelanggan dapat memindai QR reaksi di layar kasir ini untuk membuka halaman reaksi (<strong>😋 Enak · 🥵 Pedas · 🫠 Manis</strong>). Bukan QRIS pembayaran.
+                            Karena pesanan <strong>{{ $order->kode }}</strong> sudah dibayar tunai, pelanggan dapat memindai QR reaksi di layar kasir ini untuk membuka halaman reaksi (<strong>😋 Enak · 🥵 Pedas · 🫠 Manis / menyejukkan</strong>). Bukan QRIS pembayaran.
                         </p>
                         <p class="mt-1.5 text-xs font-semibold text-navy">
                             Tautan Reaksi: <a href="{{ $reaksiUrl }}" class="underline hover:text-chili">{{ $reaksiUrl }}</a>
                         </p>
                     </div>
 
-                    <div class="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-[12px] border border-border-strong bg-surface p-2 text-center shadow-ayi-xs">
-                        <svg class="h-12 w-12 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <a
+                        href="{{ $reaksiUrl }}"
+                        class="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-[12px] border-2 border-navy bg-surface p-2 text-center shadow-ayi-xs hover:border-chili transition"
+                        title="Buka halaman reaksi pesanan {{ $order->kode }}"
+                    >
+                        <svg class="h-16 w-16 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                             <rect x="3" y="3" width="7" height="7" rx="1" />
                             <rect x="14" y="3" width="7" height="7" rx="1" />
                             <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="5" y="5" width="3" height="3" fill="currentColor" />
+                            <rect x="16" y="5" width="3" height="3" fill="currentColor" />
+                            <rect x="5" y="16" width="3" height="3" fill="currentColor" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 14h3v3h-3zm4 4h3v3h-3zm0-4h3m-7 7h3" />
                         </svg>
-                        <span class="mt-1 font-heading text-[10px] font-bold text-ink-secondary">{{ $order->kode }}</span>
-                    </div>
+                        <span class="mt-1 font-heading text-[10px] font-bold text-chili">{{ $order->kode }}</span>
+                    </a>
                 </div>
             </div>
         </div>

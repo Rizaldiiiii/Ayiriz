@@ -4,14 +4,20 @@ namespace Database\Seeders;
 
 use App\Enums\OrderStatus;
 use App\Enums\OutletStatus;
+use App\Enums\ReactionEmote;
+use App\Enums\StockMovementType;
 use App\Enums\UserRole;
 use App\Models\Antrean;
 use App\Models\AntreanItem;
 use App\Models\Category;
+use App\Models\Ingredient;
 use App\Models\Menu;
+use App\Models\MenuIngredient;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Outlet;
+use App\Models\Reaction;
+use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -19,7 +25,7 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database (Data Contoh Fiktif — PRD v1.1 §6 & ERD v1.1 §4, Model B).
+     * Seed the application's database (Data Contoh Fiktif — PRD v1.1 §6 & ERD v1.1 §4, Model B Tahap 1 & Tahap 2).
      * Tanpa akun pelanggan — pelanggan adalah tamu.
      */
     public function run(): void
@@ -60,6 +66,24 @@ class DatabaseSeeder extends Seeder
                     ['nama' => 'Tahu Tempe Crispy Sambal Bawang', 'category_id' => $catCemilan->id, 'harga' => 8000, 'stok_porsi' => 40, 'tersedia' => true, 'deskripsi' => 'Cemilan tahu dan tempe tepung renyah dengan cocolan sambal bawang.'],
                     ['nama' => 'Es Jeruk Peras Segar', 'category_id' => $catMinuman->id, 'harga' => 6000, 'stok_porsi' => 50, 'tersedia' => true, 'deskripsi' => 'Perasan jeruk manis segar dengan es batu, cocok penawar pedas.'],
                 ],
+                'ingredients' => [
+                    ['nama' => 'Daging Ayam Potong', 'satuan' => 'kg', 'stok' => 12.50, 'batas_minimum' => 4.00],
+                    ['nama' => 'Beras Pulen', 'satuan' => 'kg', 'stok' => 18.00, 'batas_minimum' => 5.00],
+                    ['nama' => 'Cabai Rawit Merah', 'satuan' => 'kg', 'stok' => 1.50, 'batas_minimum' => 2.00], // Menipis!
+                ],
+                'recipes' => [
+                    // Menu 0: Ayam Geprek Sambal Korek + Nasi
+                    0 => [
+                        ['ingredient_index' => 0, 'takaran' => 0.15],
+                        ['ingredient_index' => 1, 'takaran' => 0.12],
+                        ['ingredient_index' => 2, 'takaran' => 0.03],
+                    ],
+                    // Menu 1: Ayam Geprek Sambal Roa
+                    1 => [
+                        ['ingredient_index' => 0, 'takaran' => 0.15],
+                        ['ingredient_index' => 1, 'takaran' => 0.12],
+                    ],
+                ],
             ],
             [
                 'email' => 'outlet2@ayiriz.local',
@@ -78,6 +102,22 @@ class DatabaseSeeder extends Seeder
                     ['nama' => 'Paket Ngampus (Es Kopi Aren + Roti Bakar)', 'category_id' => $catPaket->id, 'harga' => 20000, 'stok_porsi' => 18, 'tersedia' => true, 'deskripsi' => 'Kombinasi hemat es kopi susu gula aren dan roti bakar pilihan.'],
                     ['nama' => 'Matcha Latte Dingin', 'category_id' => $catMinuman->id, 'harga' => 14000, 'stok_porsi' => 22, 'tersedia' => true, 'deskripsi' => 'Minuman teh hijau Jepang creamy dengan susu segar dingin.'],
                     ['nama' => 'Kentang Goreng Bumbu Balado', 'category_id' => $catCemilan->id, 'harga' => 11000, 'stok_porsi' => 15, 'tersedia' => true, 'deskripsi' => 'Kentang goreng renyah tabur bumbu balado manis pedas.'],
+                ],
+                'ingredients' => [
+                    ['nama' => 'Biji Kopi House Blend', 'satuan' => 'kg', 'stok' => 4.50, 'batas_minimum' => 1.50],
+                    ['nama' => 'Susu Segar Full Cream', 'satuan' => 'liter', 'stok' => 2.50, 'batas_minimum' => 3.00], // Menipis!
+                    ['nama' => 'Roti Tawar Tebal', 'satuan' => 'pcs', 'stok' => 30.00, 'batas_minimum' => 10.00],
+                ],
+                'recipes' => [
+                    // Menu 0: Es Kopi Susu Gula Aren Kampus
+                    0 => [
+                        ['ingredient_index' => 0, 'takaran' => 0.02],
+                        ['ingredient_index' => 1, 'takaran' => 0.15],
+                    ],
+                    // Menu 1: Roti Bakar Cokelat Keju Lumer
+                    1 => [
+                        ['ingredient_index' => 2, 'takaran' => 1.00],
+                    ],
                 ],
             ],
             [
@@ -98,6 +138,22 @@ class DatabaseSeeder extends Seeder
                     ['nama' => 'Es Cincau Hijau Gula Merah', 'category_id' => $catMinuman->id, 'harga' => 7000, 'stok_porsi' => 35, 'tersedia' => true, 'deskripsi' => 'Minuman cincau hijau segar dengan santan ringan dan gula aren cair.'],
                     ['nama' => 'Es Teh Lemon Madu', 'category_id' => $catMinuman->id, 'harga' => 5000, 'stok_porsi' => 45, 'tersedia' => true, 'deskripsi' => 'Es teh segar perasan lemon asli dengan sentuhan madu.'],
                 ],
+                'ingredients' => [
+                    ['nama' => 'Pisang Raja Matang', 'satuan' => 'kg', 'stok' => 8.00, 'batas_minimum' => 2.50],
+                    ['nama' => 'Sirup Merah Coco Pandan', 'satuan' => 'liter', 'stok' => 1.20, 'batas_minimum' => 1.50], // Menipis!
+                    ['nama' => 'Kacang Merah Brenebon', 'satuan' => 'kg', 'stok' => 5.00, 'batas_minimum' => 1.50],
+                ],
+                'recipes' => [
+                    // Menu 0: Es Pisang Ijo Sirup Merah
+                    0 => [
+                        ['ingredient_index' => 0, 'takaran' => 0.15],
+                        ['ingredient_index' => 1, 'takaran' => 0.04],
+                    ],
+                    // Menu 1: Es Brenebon Kacang Merah Susu
+                    1 => [
+                        ['ingredient_index' => 2, 'takaran' => 0.10],
+                    ],
+                ],
             ],
             [
                 'email' => 'outlet4@ayiriz.local',
@@ -115,6 +171,15 @@ class DatabaseSeeder extends Seeder
                     ['nama' => 'Pangsit Kuah Kaldu Ayam', 'category_id' => $catMakananBerat->id, 'harga' => 13000, 'stok_porsi' => 20, 'tersedia' => true, 'deskripsi' => 'Pangsit lembut kuah kaldu ayam hangat dan daun bawang.'],
                     ['nama' => 'Lumpia Kulit Tahu Goreng', 'category_id' => $catCemilan->id, 'harga' => 10000, 'stok_porsi' => 25, 'tersedia' => true, 'deskripsi' => 'Lumpia isi ayam gulung kulit tahu goreng renyah.'],
                     ['nama' => 'Es Liang Teh Kampus', 'category_id' => $catMinuman->id, 'harga' => 6000, 'stok_porsi' => 40, 'tersedia' => true, 'deskripsi' => 'Minuman liang teh manis dingin penyegar dahaga.'],
+                ],
+                'ingredients' => [
+                    ['nama' => 'Mie Telur Basah', 'satuan' => 'kg', 'stok' => 7.00, 'batas_minimum' => 2.00],
+                    ['nama' => 'Kulit Dimsum', 'satuan' => 'pcs', 'stok' => 120.00, 'batas_minimum' => 40.00],
+                ],
+                'recipes' => [
+                    0 => [
+                        ['ingredient_index' => 0, 'takaran' => 0.14],
+                    ],
                 ],
             ],
         ];
@@ -169,6 +234,55 @@ class DatabaseSeeder extends Seeder
 
                 $createdMenusByOutlet[$outlet->slug][] = $menu;
             }
+
+            // Bahan Baku Contoh per Outlet (KF-06)
+            $createdIngredients = [];
+            foreach (($outletDef['ingredients'] ?? []) as $ingDef) {
+                $ingredient = Ingredient::updateOrCreate(
+                    [
+                        'outlet_id' => $outlet->id,
+                        'nama' => $ingDef['nama'],
+                    ],
+                    [
+                        'satuan' => $ingDef['satuan'],
+                        'stok' => $ingDef['stok'],
+                        'batas_minimum' => $ingDef['batas_minimum'],
+                        'is_sample' => true,
+                    ]
+                );
+
+                $createdIngredients[] = $ingredient;
+
+                if ($ingredient->movements()->count() === 0) {
+                    StockMovement::create([
+                        'ingredient_id' => $ingredient->id,
+                        'jenis' => StockMovementType::Masuk,
+                        'jumlah' => $ingDef['stok'],
+                        'keterangan' => 'Stok awal bahan baku (Data Contoh)',
+                        'created_at' => now()->subDays(2),
+                    ]);
+                }
+            }
+
+            // Resep Sederhana Contoh per Menu (KF-06)
+            foreach (($outletDef['recipes'] ?? []) as $menuIdx => $recipeList) {
+                $menu = $createdMenusByOutlet[$outlet->slug][$menuIdx] ?? null;
+                if (! $menu) {
+                    continue;
+                }
+
+                MenuIngredient::where('menu_id', $menu->id)->delete();
+                foreach ($recipeList as $rRow) {
+                    $ing = $createdIngredients[$rRow['ingredient_index']] ?? null;
+                    if ($ing) {
+                        MenuIngredient::create([
+                            'menu_id' => $menu->id,
+                            'ingredient_id' => $ing->id,
+                            'takaran' => $rRow['takaran'],
+                        ]);
+                    }
+                }
+            }
         }
 
         // 4. Pesanan Contoh (8 pesanan yang sudah dibayar tunai: sebagian Diproses, sebagian Selesai dengan royalti 10% terhitung)
@@ -179,8 +293,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Selesai,
                 'items' => [
-                    ['menu_index' => 0, 'jumlah' => 2], // 2x 15.000 = 30.000
-                    ['menu_index' => 5, 'jumlah' => 2], // 2x 6.000 = 12.000
+                    ['menu_index' => 0, 'jumlah' => 2, 'reaction' => ReactionEmote::Enak],
+                    ['menu_index' => 5, 'jumlah' => 2, 'reaction' => ReactionEmote::Manis],
                 ],
                 'created_at' => now()->subHours(5),
                 'selesai_at' => now()->subHours(4),
@@ -191,8 +305,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Selesai,
                 'items' => [
-                    ['menu_index' => 1, 'jumlah' => 1], // 18.000
-                    ['menu_index' => 4, 'jumlah' => 1], // 8.000
+                    ['menu_index' => 1, 'jumlah' => 1, 'reaction' => ReactionEmote::Pedas],
+                    ['menu_index' => 4, 'jumlah' => 1, 'reaction' => ReactionEmote::Enak],
                 ],
                 'created_at' => now()->subHours(3),
                 'selesai_at' => now()->subHours(2),
@@ -203,7 +317,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-geprek',
                 'status' => OrderStatus::Diproses,
                 'items' => [
-                    ['menu_index' => 2, 'jumlah' => 1], // 17.000
+                    ['menu_index' => 0, 'jumlah' => 1, 'reaction' => ReactionEmote::Pedas],
+                    ['menu_index' => 2, 'jumlah' => 1, 'reaction' => ReactionEmote::Enak],
                 ],
                 'created_at' => now()->subMinutes(40),
                 'selesai_at' => null,
@@ -214,8 +329,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-kopi-roti',
                 'status' => OrderStatus::Selesai,
                 'items' => [
-                    ['menu_index' => 0, 'jumlah' => 2], // 2x 12.000 = 24.000
-                    ['menu_index' => 1, 'jumlah' => 1], // 13.000
+                    ['menu_index' => 0, 'jumlah' => 2, 'reaction' => ReactionEmote::Manis],
+                    ['menu_index' => 1, 'jumlah' => 1, 'reaction' => ReactionEmote::Enak],
                 ],
                 'created_at' => now()->subHours(4),
                 'selesai_at' => now()->subHours(3),
@@ -226,7 +341,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-kopi-roti',
                 'status' => OrderStatus::Diproses,
                 'items' => [
-                    ['menu_index' => 3, 'jumlah' => 1], // 20.000
+                    ['menu_index' => 3, 'jumlah' => 1, 'reaction' => ReactionEmote::Enak],
+                    ['menu_index' => 5, 'jumlah' => 1, 'reaction' => ReactionEmote::Pedas],
                 ],
                 'created_at' => now()->subMinutes(25),
                 'selesai_at' => null,
@@ -237,8 +353,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Selesai,
                 'items' => [
-                    ['menu_index' => 0, 'jumlah' => 2], // 2x 12.000 = 24.000
-                    ['menu_index' => 5, 'jumlah' => 2], // 2x 5.000 = 10.000
+                    ['menu_index' => 0, 'jumlah' => 2, 'reaction' => ReactionEmote::Manis],
+                    ['menu_index' => 5, 'jumlah' => 2, 'reaction' => ReactionEmote::Manis],
                 ],
                 'created_at' => now()->subHours(6),
                 'selesai_at' => now()->subHours(5),
@@ -249,8 +365,8 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Selesai,
                 'items' => [
-                    ['menu_index' => 1, 'jumlah' => 1], // 13.000
-                    ['menu_index' => 2, 'jumlah' => 1], // 15.000
+                    ['menu_index' => 1, 'jumlah' => 1, 'reaction' => ReactionEmote::Enak],
+                    ['menu_index' => 2, 'jumlah' => 1, 'reaction' => ReactionEmote::Manis],
                 ],
                 'created_at' => now()->subHours(2),
                 'selesai_at' => now()->subHour(),
@@ -261,7 +377,7 @@ class DatabaseSeeder extends Seeder
                 'outlet_slug' => 'ayiriz-es-dessert',
                 'status' => OrderStatus::Diproses,
                 'items' => [
-                    ['menu_index' => 3, 'jumlah' => 2], // 2x 8.000 = 16.000
+                    ['menu_index' => 3, 'jumlah' => 2, 'reaction' => ReactionEmote::Manis],
                 ],
                 'created_at' => now()->subMinutes(15),
                 'selesai_at' => null,
@@ -274,6 +390,7 @@ class DatabaseSeeder extends Seeder
 
             $total = 0;
             $itemsPayload = [];
+            $reactionsPayload = [];
 
             foreach ($orderDef['items'] as $itemRow) {
                 /** @var Menu $menu */
@@ -289,6 +406,10 @@ class DatabaseSeeder extends Seeder
                     'jumlah' => $qty,
                     'subtotal' => $subtotal,
                 ];
+
+                if (isset($itemRow['reaction'])) {
+                    $reactionsPayload[$menu->id] = $itemRow['reaction'];
+                }
             }
 
             $isSelesai = $orderDef['status'] === OrderStatus::Selesai;
@@ -317,6 +438,20 @@ class DatabaseSeeder extends Seeder
                 OrderItem::create(array_merge($payload, [
                     'order_id' => $order->id,
                 ]));
+            }
+
+            // Reaksi Emote Contoh (KF-07 — tersebar di ketiga emote untuk pesanan yang sudah dibayar)
+            foreach ($reactionsPayload as $menuId => $emoteCase) {
+                Reaction::updateOrCreate(
+                    [
+                        'order_id' => $order->id,
+                        'menu_id' => $menuId,
+                    ],
+                    [
+                        'emote' => $emoteCase,
+                        'is_sample' => true,
+                    ]
+                );
             }
         }
 

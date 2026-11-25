@@ -69,7 +69,7 @@
             <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
                 @if ($isOutlet)
                     <p class="px-3 pb-1.5 font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">
-                        Operasional & Kasir (Tahap 1)
+                        Operasional & Kasir Outlet
                     </p>
 
                     @php
@@ -83,7 +83,7 @@
                             [
                                 'label' => 'Kasir & Pesanan Masuk',
                                 'route' => 'outlet.orders.index',
-                                'active' => request()->routeIs('outlet.orders.*'),
+                                'active' => request()->routeIs('outlet.orders.*') || request()->routeIs('outlet.antrean.*'),
                                 'icon' => 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2',
                             ],
                             [
@@ -91,6 +91,18 @@
                                 'route' => 'outlet.menus.index',
                                 'active' => request()->routeIs('outlet.menus.*'),
                                 'icon' => 'M4 6h16M4 12h16M4 18h10',
+                            ],
+                            [
+                                'label' => 'Stok Bahan & Resep (KF-06)',
+                                'route' => 'outlet.stok',
+                                'active' => request()->routeIs('outlet.stok*'),
+                                'icon' => 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z',
+                            ],
+                            [
+                                'label' => 'Laporan Outlet (KF-09)',
+                                'route' => 'outlet.laporan',
+                                'active' => request()->routeIs('outlet.laporan*'),
+                                'icon' => 'M18 20V10M12 20V4M6 20v-6',
                             ],
                         ];
                     @endphp
@@ -106,36 +118,6 @@
                             <span>{{ $item['label'] }}</span>
                         </a>
                     @endforeach
-
-                    <p class="mt-6 px-3 pb-1.5 font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">
-                        Tahap Berikutnya
-                    </p>
-
-                    <a
-                        href="{{ route('outlet.stok') }}"
-                        class="flex min-h-[44px] items-center justify-between gap-2 rounded-r-[12px] px-3.5 py-2.5 text-sm font-medium {{ request()->routeIs('outlet.stok') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream' }}"
-                    >
-                        <span class="flex items-center gap-3">
-                            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                            </svg>
-                            <span>Stok Bahan</span>
-                        </span>
-                        <span class="rounded-full bg-divider px-2 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">Tahap 2</span>
-                    </a>
-
-                    <a
-                        href="{{ route('outlet.laporan') }}"
-                        class="flex min-h-[44px] items-center justify-between gap-2 rounded-r-[12px] px-3.5 py-2.5 text-sm font-medium {{ request()->routeIs('outlet.laporan') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream' }}"
-                    >
-                        <span class="flex items-center gap-3">
-                            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 20V10M12 20V4M6 20v-6" />
-                            </svg>
-                            <span>Laporan Outlet</span>
-                        </span>
-                        <span class="rounded-full bg-divider px-2 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">Tahap 2</span>
-                    </a>
                 @elseif ($isPusat)
                     <p class="px-3 pb-1.5 font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">
                         Manajemen Brand (Tahap 1)

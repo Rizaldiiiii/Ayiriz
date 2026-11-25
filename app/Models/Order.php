@@ -48,6 +48,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
+    }
+
     public function scopeSelesai(Builder $query): Builder
     {
         return $query->where('status', OrderStatus::Selesai);

@@ -55,6 +55,11 @@ class Outlet extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function ingredients(): HasMany
+    {
+        return $this->hasMany(Ingredient::class);
+    }
+
     public function scopeAktif(Builder $query): Builder
     {
         return $query->where('status', OutletStatus::Terverifikasi);
