@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\OrderStatus;
 use App\Enums\OutletStatus;
 use App\Enums\ReactionEmote;
+use App\Enums\RoyaltyDecision;
 use App\Enums\StockMovementType;
 use App\Enums\UserRole;
 use App\Models\Antrean;
@@ -17,6 +18,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Outlet;
 use App\Models\Reaction;
+use App\Models\RoyaltyAudit;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -31,7 +33,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Akun Pusat Ayiriz
-        User::updateOrCreate(
+        $pusatUser = User::updateOrCreate(
             ['email' => 'pusat@ayiriz.local'],
             [
                 'name' => 'Pusat Ayiriz (Owner Brand)',
@@ -520,6 +522,32 @@ class DatabaseSeeder extends Seeder
                     'antrean_id' => $antrean->id,
                 ]));
             }
+        }
+
+        // 6. Contoh Audit Royalti Semester Lalu (KF-10 — Data Contoh Fiktif)
+        // Semester lalu "2025/2026 Genap" sudah diaudit dengan keputusan Tetap 10% sehingga royalti berjalan tetap 10.00%,
+        // sedangkan semester berjalan "2026/2027 Ganjil" siap diaudit saat demo.
+        foreach (['ayiriz-geprek', 'ayiriz-kopi-roti'] as $slug) {
+            $outlet = $createdOutlets[$slug] ?? null;
+            if (! $outlet) {
+                continue;
+            }
+
+            RoyaltyAudit::updateOrCreate(
+                [
+                    'outlet_id' => $outlet->id,
+                    'semester' => '2025/2026 Genap',
+                ],
+                [
+                    'total_penjualan' => 450000,
+                    'total_royalti_terhitung' => 45000,
+                    'keputusan' => RoyaltyDecision::Tetap,
+                    'percent_baru' => 10.00,
+                    'catatan' => 'Evaluasi awal kemitraan semester 2025/2026 Genap: bagi hasil royalti dipertahankan tetap 10% (Data Contoh).',
+                    'dibuat_oleh' => $pusatUser->id,
+                    'is_sample' => true,
+                ]
+            );
         }
     }
 }

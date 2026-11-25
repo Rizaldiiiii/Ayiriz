@@ -120,7 +120,7 @@
                     @endforeach
                 @elseif ($isPusat)
                     <p class="px-3 pb-1.5 font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">
-                        Manajemen Brand (Tahap 1)
+                        Manajemen Brand & Audit Pusat
                     </p>
 
                     <a
@@ -146,34 +146,24 @@
                         <span>Manajemen Outlet (KF-01)</span>
                     </a>
 
-                    <p class="mt-6 px-3 pb-1.5 font-heading text-xs font-bold uppercase tracking-wider text-ink-muted">
-                        Tahap Berikutnya
-                    </p>
-
                     <a
                         href="{{ route('pusat.laporan') }}"
-                        class="flex min-h-[44px] items-center justify-between gap-2 rounded-r-[12px] px-3.5 py-2.5 text-sm font-medium {{ request()->routeIs('pusat.laporan') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream' }}"
+                        class="flex min-h-[44px] items-center gap-3 rounded-r-[12px] px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('pusat.laporan*') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream hover:text-ink' }}"
                     >
-                        <span class="flex items-center gap-3">
-                            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 20V10M12 20V4M6 20v-6" />
-                            </svg>
-                            <span>Laporan Gabungan</span>
-                        </span>
-                        <span class="rounded-full bg-divider px-2 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">Tahap 3</span>
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('pusat.laporan*') ? 'text-chili' : 'text-ink-secondary' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 20V10M12 20V4M6 20v-6" />
+                        </svg>
+                        <span>Laporan Gabungan (KF-08)</span>
                     </a>
 
                     <a
                         href="{{ route('pusat.audit') }}"
-                        class="flex min-h-[44px] items-center justify-between gap-2 rounded-r-[12px] px-3.5 py-2.5 text-sm font-medium {{ request()->routeIs('pusat.audit') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream' }}"
+                        class="flex min-h-[44px] items-center gap-3 rounded-r-[12px] px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('pusat.audit*') ? 'border-l-[3px] border-l-chili bg-tint-chili text-chili' : 'text-ink-secondary hover:bg-surface-cream hover:text-ink' }}"
                     >
-                        <span class="flex items-center gap-3">
-                            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                            </svg>
-                            <span>Audit Royalti</span>
-                        </span>
-                        <span class="rounded-full bg-divider px-2 py-0.5 font-heading text-[11px] font-bold text-ink-secondary">Tahap 3</span>
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('pusat.audit*') ? 'text-chili' : 'text-ink-secondary' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                        </svg>
+                        <span>Audit Royalti (KF-10)</span>
                     </a>
                 @endif
             </nav>

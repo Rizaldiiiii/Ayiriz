@@ -11,9 +11,17 @@
             </p>
         </div>
 
-        <a href="{{ route('pusat.outlets.create') }}" class="ayi-btn-primary">
-            + Daftarkan Kantin Mitra
-        </a>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('pusat.laporan') }}" class="ayi-btn-secondary">
+                Laporan Gabungan (KF-08)
+            </a>
+            <a href="{{ route('pusat.audit') }}" class="ayi-btn-secondary">
+                Audit Royalti (KF-10)
+            </a>
+            <a href="{{ route('pusat.outlets.create') }}" class="ayi-btn-primary">
+                + Daftarkan Kantin Mitra
+            </a>
+        </div>
     </div>
 
     {{-- KPI Tiles --}}

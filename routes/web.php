@@ -10,6 +10,8 @@ use App\Http\Controllers\Outlet\OutletReportController;
 use App\Http\Controllers\Outlet\StockManagementController;
 use App\Http\Controllers\PublicReactionController;
 use App\Http\Controllers\Pusat\OutletManagementController;
+use App\Http\Controllers\Pusat\PusatReportController;
+use App\Http\Controllers\Pusat\RoyaltyAuditController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -86,9 +88,10 @@ Route::prefix('pusat')
         Route::put('/outlet/{outlet}', [OutletManagementController::class, 'update'])->name('outlets.update');
         Route::patch('/outlet/{outlet}/status', [OutletManagementController::class, 'updateStatus'])->name('outlets.status');
 
-        // Stub Tahap 3 (KF-08 Laporan Pusat, KF-10 Audit Royalti)
-        Route::get('/laporan', [OutletManagementController::class, 'stubLaporan'])->name('laporan');
-        Route::get('/audit', [OutletManagementController::class, 'stubAudit'])->name('audit');
+        // Tahap 3: KF-08 Laporan & Dashboard Pusat, KF-10 Audit Royalti Semester
+        Route::get('/laporan', [PusatReportController::class, 'index'])->name('laporan');
+        Route::get('/audit', [RoyaltyAuditController::class, 'index'])->name('audit');
+        Route::post('/audit', [RoyaltyAuditController::class, 'store'])->name('audit.store');
     });
 
 /*

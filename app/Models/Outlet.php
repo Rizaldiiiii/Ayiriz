@@ -60,6 +60,16 @@ class Outlet extends Model
         return $this->hasMany(Ingredient::class);
     }
 
+    public function royaltyHistories(): HasMany
+    {
+        return $this->hasMany(RoyaltyHistory::class);
+    }
+
+    public function royaltyAudits(): HasMany
+    {
+        return $this->hasMany(RoyaltyAudit::class);
+    }
+
     public function scopeAktif(Builder $query): Builder
     {
         return $query->where('status', OutletStatus::Terverifikasi);

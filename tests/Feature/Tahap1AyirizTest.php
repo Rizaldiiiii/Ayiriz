@@ -116,13 +116,13 @@ test('KF-01: pusat dapat mendaftarkan outlet baru (belum terverifikasi, royalti 
     $this->get('/outlet/' . $outlet->slug)->assertNotFound();
 });
 
-test('Stub Tahap 3 & Halaman Tahap 2: halaman KF-08 dan KF-10 tetap menampilkan stub Tahap 3, sedangkan KF-06, KF-07, KF-09 sudah aktif di Tahap 2', function () {
+test('Stub Tahap 3 & Halaman Tahap 2: seluruh halaman KF-06, KF-07, KF-08, KF-09, dan KF-10 sudah aktif penuh di Tahap 3', function () {
     $this->seed(DatabaseSeeder::class);
 
     $pusat = User::where('email', 'pusat@ayiriz.local')->firstOrFail();
     $outletUser = User::where('email', 'outlet1@ayiriz.local')->firstOrFail();
 
-    // KF-06, KF-07, KF-09 aktif di Tahap 2
+    // KF-06, KF-07, KF-09 aktif sejak Tahap 2
     $this->actingAs($outletUser)->get(route('outlet.stok'))
         ->assertOk()
         ->assertSee('MANAJEMEN STOK BAHAN BAKU & RESEP (KF-06)', false);
@@ -135,16 +135,16 @@ test('Stub Tahap 3 & Halaman Tahap 2: halaman KF-08 dan KF-10 tetap menampilkan 
         ->assertOk()
         ->assertSee('KF-09');
 
-    // KF-08 dan KF-10 tetap stub Tahap 3
+    // KF-08 dan KF-10 sekarang sudah aktif penuh di Tahap 3 (bukan stub lagi)
     $this->actingAs($pusat)->get(route('pusat.laporan'))
         ->assertOk()
-        ->assertSee('KF-08')
-        ->assertSee('Belum Tersedia di Tahap Ini');
+        ->assertSee('LAPORAN & DASHBOARD GABUNGAN PUSAT (KF-08)', false)
+        ->assertDontSee('Belum Tersedia di Tahap Ini');
 
     $this->actingAs($pusat)->get(route('pusat.audit'))
         ->assertOk()
-        ->assertSee('KF-10')
-        ->assertSee('Belum Tersedia di Tahap Ini');
+        ->assertSee('AUDIT ROYALTI SEMESTER (KF-10)', false)
+        ->assertDontSee('Belum Tersedia di Tahap Ini');
 });
 
 test('KF-02: outlet dapat mengelola menunya sendiri dan tidak bisa mengubah atau menghapus menu outlet lain', function () {
